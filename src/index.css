@@ -159,6 +159,14 @@ button {
   font-weight: 800;
 }
 
+/* 💎 Crystal Fresh Navigation Button Hover & Active Effects */
+.jw-nav-item:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #fef08a !important;
+  text-shadow: 0 0 10px rgba(254, 240, 138, 0.6), 0 2px 4px rgba(0,0,0,0.4) !important;
+  transform: translateY(-1px);
+}
+
 /* Red Event Badge (행사 스티커) */
 .event-badge {
   position: absolute;

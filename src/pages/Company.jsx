@@ -9,20 +9,20 @@ export default function Company() {
   const naverMapUrl = "https://map.naver.com/v5/search/" + encodeURIComponent(COMPANY_INFO.address);
 
   return (
-    <div className="container animate-fade-in" style={{ padding: '2.5rem 1.25rem' }}>
+    <div className="container animate-fade-in" style={{ padding: '1.5rem 1.25rem 3rem' }}>
       {/* Title */}
-      <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-        <span className="badge badge-primary" style={{ marginBottom: '0.4rem' }}>ABOUT 주식회사 서진</span>
-        <h2 style={{ fontSize: '2.2rem', fontWeight: '800', marginBottom: '0.4rem' }}>
+      <div style={{ marginBottom: '1.2rem', textAlign: 'center' }}>
+        <span className="badge badge-primary" style={{ marginBottom: '0.3rem' }}>ABOUT 주식회사 서진</span>
+        <h2 style={{ fontSize: '2.1rem', fontWeight: '800', marginBottom: '0.3rem' }}>
           회사소개 (Company Overview)
         </h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '1rem', maxWidth: '650px', margin: '0 auto' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', maxWidth: '650px', margin: '0 auto' }}>
           {COMPANY_INFO.slogan} - 신선한 자연 식재료와 HACCP 위생 인프라로 우리 아이들의 안심 식탁을 책임집니다.
         </p>
       </div>
 
       {/* Sub Tabs */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         {[
           { id: 'ceo', label: 'CEO 인사말' },
           { id: 'history', label: '회사 연혁' },
@@ -33,7 +33,7 @@ export default function Company() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`btn ${activeTab === tab.id ? 'btn-primary' : 'btn-outline'}`}
-            style={{ padding: '0.65rem 1.5rem', borderRadius: 'var(--radius-full)' }}
+            style={{ padding: '0.55rem 1.4rem', borderRadius: 'var(--radius-full)' }}
           >
             {tab.label}
           </button>
@@ -42,9 +42,9 @@ export default function Company() {
 
       {/* Tab 1: CEO Message */}
       {activeTab === 'ceo' && (
-        <div className="glass-card" style={{ padding: '2.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem', alignItems: 'center' }}>
-          <div>
-            <span className="badge badge-accent" style={{ marginBottom: '0.8rem' }}>대표이사 인사말</span>
+        <div className="glass-card" style={{ padding: '1.8rem 2.2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', alignItems: 'flex-start' }}>
+          <div style={{ paddingTop: '0.2rem' }}>
+            <span className="badge badge-accent" style={{ marginBottom: '0.7rem' }}>대표이사 인사말</span>
             <h3 style={{ fontSize: '1.8rem', fontWeight: '800', lineHeight: 1.3, marginBottom: '1.25rem' }}>
               "바른 식재료가 우리 아이들의 건강한 미래를 만듭니다."
             </h3>

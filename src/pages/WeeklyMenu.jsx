@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Utensils, Flame, Sparkles, ChevronLeft, ChevronRight, BookOpen, Clock } from 'lucide-react';
 
 // 🌟 풍성한 학교급식 인기 추천 레시피 데이터 (총 18개 - 1페이지당 9개씩 2페이지 분량)
-const RECIPE_LIST = [
+export const RECIPE_LIST = [
   {
     id: 1,
     title: '바삭바삭 수제 돈가스 & 특제 브라운 소스',

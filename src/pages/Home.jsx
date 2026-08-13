@@ -28,7 +28,7 @@ export default function Home() {
         overflow: 'hidden'
       }}>
         <div className="container" style={{ position: 'relative', zIndex: 2, width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-          
+
           {/* 🌟 Bottom Right Basket Area Box: Centered Logo + Centered Text Below */}
           <div style={{
             display: 'flex',
@@ -100,10 +100,10 @@ export default function Home() {
 
       {/* 🌟 3. MAIN CONTENT SECTION */}
       <div className="container" style={{ marginTop: '2rem' }}>
-        
+
         {/* Middle 3-Column Content Block */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.25rem', marginBottom: '2rem' }}>
-          
+
           {/* Column 1: 신상품&행사 / 공지사항 Tab */}
           <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
             <div style={{ display: 'flex', borderBottom: '2px solid #0b69c7', marginBottom: '0.8rem' }}>
@@ -151,55 +151,123 @@ export default function Home() {
             </ul>
           </div>
 
-          {/* Column 2: 신상품&행사 New & Event Banner Showcase */}
+          {/* Column 2: 신상품&행사 New & Event Real Product Showcase */}
           <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
               <span style={{ fontWeight: '800', fontSize: '0.9rem', color: '#d32f2f' }}>신상품&행사 <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '400' }}>New & Event</span></span>
-              <span onClick={() => setCurrentPage('promotions')} style={{ fontSize: '0.75rem', color: '#94a3b8', cursor: 'pointer' }}>+ more</span>
+              <span onClick={() => setCurrentPage('promotions')} style={{ fontSize: '0.75rem', color: '#0b69c7', fontWeight: '700', cursor: 'pointer' }}>+ more</span>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.6rem' }}>
               {[
-                { title: '8월 특가 기획전', color: '#eff6ff', textColor: '#1d4ed8' },
-                { title: '친환경 쌀 할인', color: '#ecfdf5', textColor: '#047857' },
-                { title: '신규 입고 델리', color: '#fff7ed', textColor: '#c2410c' }
-              ].map((item, i) => (
-                <div key={i} style={{
-                  flex: 1,
-                  height: '100px',
-                  backgroundColor: item.color,
-                  borderRadius: '4px',
-                  border: '1px solid #cbd5e1',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.78rem',
-                  color: item.textColor,
-                  fontWeight: '800',
-                  textAlign: 'center',
-                  padding: '0.4rem'
-                }}>
-                  <Sparkles size={18} style={{ marginBottom: '0.2rem' }} />
-                  {item.title}
+                {
+                  id: 'p1',
+                  title: '풀무원 두부선 핑거',
+                  badge: '8월 신상품',
+                  price: '3,200원',
+                  img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80'
+                },
+                {
+                  id: 'p2',
+                  title: '풀스키친 꿔바로우',
+                  badge: '기획 할인',
+                  price: '8,900원',
+                  img: 'https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80'
+                },
+                {
+                  id: 'p3',
+                  title: '바른콩 몽글 순두부',
+                  badge: '친환경 특가',
+                  price: '1,800원',
+                  img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=400&q=80'
+                }
+              ].map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => setCurrentPage('promotions')}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#ffffff',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                >
+                  <div style={{ position: 'relative', width: '100%', height: '65px', overflow: 'hidden' }}>
+                    <img src={item.img} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <span style={{ position: 'absolute', top: '3px', left: '3px', backgroundColor: '#d32f2f', color: '#ffffff', fontSize: '0.62rem', fontWeight: '800', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>
+                      {item.badge}
+                    </span>
+                  </div>
+                  <div style={{ padding: '0.4rem', fontSize: '0.73rem', fontWeight: '800', color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {item.title}
+                  </div>
+                  <div style={{ padding: '0 0.4rem 0.4rem', fontSize: '0.72rem', fontWeight: '900', color: '#d32f2f' }}>
+                    {item.price}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Column 3: 추천레시피 Best Recipe */}
+          {/* Column 3: 추천레시피 Best Recipe Real Recipes Showcase */}
           <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
               <span style={{ fontWeight: '800', fontSize: '0.9rem', color: '#0b69c7' }}>추천레시피 <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '400' }}>Best Recipe</span></span>
-              <span onClick={() => setCurrentPage('recipes')} style={{ fontSize: '0.75rem', color: '#94a3b8', cursor: 'pointer' }}>+ more</span>
+              <span onClick={() => setCurrentPage('recipes')} style={{ fontSize: '0.75rem', color: '#0b69c7', fontWeight: '700', cursor: 'pointer' }}>+ more</span>
             </div>
 
             <div style={{ display: 'flex', gap: '0.6rem' }}>
-              {RECOMMENDED_RECIPES.map(rec => (
-                <div key={rec.id} style={{ flex: 1, backgroundColor: '#f8fafc', borderRadius: '4px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                  <img src={rec.image} alt={rec.title} style={{ width: '100%', height: '65px', objectFit: 'cover' }} />
-                  <div style={{ padding: '0.3rem 0.4rem', fontSize: '0.72rem', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {[
+                {
+                  id: 'r1',
+                  title: '수제 돈가스 & 브라운 소스',
+                  category: '육류 메인',
+                  img: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=400&q=80'
+                },
+                {
+                  id: 'r2',
+                  title: '풀무원 바른콩 순두부 찌개',
+                  category: '국 / 찌개',
+                  img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=400&q=80'
+                },
+                {
+                  id: 'r3',
+                  title: '궁중 떡잡채 특식',
+                  category: '인기 반찬',
+                  img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=400&q=80'
+                }
+              ].map((rec) => (
+                <div
+                  key={rec.id}
+                  onClick={() => setCurrentPage('recipes')}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#ffffff',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                >
+                  <div style={{ position: 'relative', width: '100%', height: '65px', overflow: 'hidden' }}>
+                    <img src={rec.img} alt={rec.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <span style={{ position: 'absolute', top: '3px', left: '3px', backgroundColor: 'rgba(3, 105, 161, 0.85)', color: '#ffffff', fontSize: '0.6rem', fontWeight: '800', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>
+                      {rec.category}
+                    </span>
+                  </div>
+                  <div style={{ padding: '0.4rem', fontSize: '0.73rem', fontWeight: '800', color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {rec.title}
+                  </div>
+                  <div style={{ padding: '0 0.4rem 0.4rem', fontSize: '0.7rem', color: '#64748b' }}>
+                    급식 인기 추천
                   </div>
                 </div>
               ))}

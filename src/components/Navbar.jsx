@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Sun, Moon, Home as HomeIcon } from 'lucide-react';
 
-// Main Blue Navigation Bar
+// 💎 3D Deep Blue Sapphire Crystal Full-Width Navigation Bar (웹사이트 좌우 100% 꽉 찬 3D 딥블루 크리스탈 바)
 export function NavigationBar() {
   const { currentPage, setCurrentPage, theme, toggleTheme, globalSearchTerm, setGlobalSearchTerm } = useApp();
   const [searchTerm, setSearchTerm] = useState(globalSearchTerm || '');
@@ -15,7 +15,6 @@ export function NavigationBar() {
     }
   };
 
-  // 요청에 따른 네비게이션 메뉴 (회사소개 좌측에 홈 버튼 생성)
   const navMenuItems = [
     { id: 'home', label: '홈', icon: <HomeIcon size={16} style={{ marginRight: '4px' }} /> },
     { id: 'company', label: '회사소개' },
@@ -29,13 +28,22 @@ export function NavigationBar() {
     <div
       className="no-print jw-nav-bar"
       style={{
-        backgroundColor: '#0284c7',
-        background: 'linear-gradient(90deg, #0369a1 0%, #0284c7 100%)',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        // 🌟 1. Full-Width 100% Full Screen Width Navigation Bar
+        width: '100%',
+        background: 'linear-gradient(135deg, rgba(3, 105, 161, 0.96) 0%, rgba(2, 132, 199, 0.92) 45%, rgba(15, 23, 42, 0.96) 100%)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        // 🌟 2. 3D Silver Chrome & Sapphire Edge Highlights
+        borderTop: '2px solid rgba(255, 255, 255, 0.85)',
+        borderBottom: '1.5px solid rgba(186, 230, 253, 0.5)',
+        boxShadow: '0 8px 30px rgba(2, 132, 199, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.65)',
+        position: 'relative',
+        zIndex: 100
       }}
     >
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '48px' }}>
-        {/* Nav Items (홈버튼이 회사소개 좌측 첫 번째에 배치) */}
+      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '52px' }}>
+        
+        {/* 💎 3D Deep Blue Navigation Menu Buttons */}
         <nav style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
           {navMenuItems.map(item => {
             const isActive = currentPage === item.id;
@@ -48,15 +56,21 @@ export function NavigationBar() {
                   padding: '0 1.25rem',
                   height: '100%',
                   border: 'none',
-                  background: isActive ? '#0369a1' : 'transparent',
+                  background: isActive
+                    ? 'linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.12) 100%)'
+                    : 'transparent',
                   color: '#ffffff',
                   fontWeight: isActive ? '900' : '700',
-                  fontSize: '0.92rem',
+                  fontSize: '0.94rem',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'flex',
                   alignItems: 'center',
-                  boxShadow: isActive ? 'inset 0 -3px 0 #fde047' : 'none'
+                  textShadow: '0 2px 4px rgba(15, 23, 42, 0.85)',
+                  boxShadow: isActive
+                    ? 'inset 0 -3.5px 0 #fde047, 0 4px 15px rgba(253, 224, 71, 0.45)'
+                    : 'none',
+                  letterSpacing: '-0.01em'
                 }}
               >
                 {item.icon && item.icon}
@@ -66,35 +80,40 @@ export function NavigationBar() {
           })}
         </nav>
 
-        {/* Right Search Form & Theme Toggle */}
+        {/* Right Product Search & Theme Toggle */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
           <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: '800', color: 'white' }}>제품검색</span>
+            <span style={{ fontSize: '0.82rem', fontWeight: '800', color: '#ffffff', textShadow: '0 1px 3px rgba(15,23,42,0.8)' }}>제품검색</span>
             <input
               type="text"
               placeholder="검색어 입력"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                padding: '0.3rem 0.6rem',
+                padding: '0.35rem 0.65rem',
                 fontSize: '0.82rem',
-                borderRadius: '4px',
-                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                border: '1.5px solid rgba(255, 255, 255, 0.85)',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                color: '#0f172a',
                 outline: 'none',
-                width: '130px'
+                width: '135px',
+                fontWeight: '700',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.12)'
               }}
             />
             <button
               type="submit"
               style={{
-                backgroundColor: '#0369a1',
+                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                 color: 'white',
-                border: '1px solid #0284c7',
-                padding: '0.3rem 0.6rem',
-                borderRadius: '4px',
+                border: '1.5px solid rgba(255, 255, 255, 0.85)',
+                padding: '0.35rem 0.65rem',
+                borderRadius: '6px',
                 fontSize: '0.82rem',
-                fontWeight: '800',
-                cursor: 'pointer'
+                fontWeight: '900',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(3, 105, 161, 0.4)'
               }}
               title="검색"
             >
@@ -106,15 +125,17 @@ export function NavigationBar() {
           <button
             onClick={toggleTheme}
             style={{
-              background: 'rgba(255, 255, 255, 0.2)',
-              border: 'none',
+              background: 'rgba(255, 255, 255, 0.24)',
+              border: '1.5px solid rgba(255, 255, 255, 0.85)',
               color: '#ffffff',
-              padding: '0.35rem',
+              padding: '0.4rem',
               borderRadius: '50%',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              backdropFilter: 'blur(6px)',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
             }}
             title="테마 변경"
           >
