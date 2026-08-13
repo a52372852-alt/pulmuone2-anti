@@ -17,26 +17,12 @@ export default function Footer() {
       <div className="container">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '900',
-                fontSize: '0.85rem'
-              }}>
-                장원
-              </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '900', color: 'var(--text-main)' }}>(주)장원 jw-fs.kr</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.8rem' }}>
+              <img src="/seajin-logo.jpg" alt="주식회사 서진" style={{ height: '42px', objectFit: 'contain' }} />
             </div>
             <p style={{ lineHeight: 1.65, color: 'var(--text-muted)', fontSize: '0.85rem' }}>
               {COMPANY_INFO.slogan}<br />
-              HACCP 인증 제2018-0415호 지정 기업
+              HACCP 위생인증 안심 식자재 지정 유통기업
             </p>
           </div>
 
@@ -52,19 +38,19 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 style={{ color: 'var(--text-main)', fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.8rem' }}>본사 및 물류센터 정보</h4>
+            <h4 style={{ color: 'var(--text-main)', fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.8rem' }}>본사 및 내포물류센터 정보</h4>
             <p style={{ lineHeight: 1.6 }}>
-              대표이사: {COMPANY_INFO.ceo}<br />
-              본사: {COMPANY_INFO.address}<br />
-              대표전화: {COMPANY_INFO.tel} | 팩스: {COMPANY_INFO.fax}<br />
+              상호: 주식회사 서진<br />
+              주소: 충남 홍성군 홍성읍 백월로 59 내포물류센터<br />
+              대표전화: 041-634-1762 | 팩스: 041-634-9828<br />
               이메일: {COMPANY_INFO.email}
             </p>
           </div>
         </div>
 
         <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem', textAlign: 'center', color: 'var(--text-light)', fontSize: '0.8rem' }}>
-          <p>© 2026 (주)장원 (jw-fs.kr Reference Official Site). All rights reserved.</p>
-          <p style={{ marginTop: '0.2rem' }}>본 웹사이트의 서브페이지 체계는 (주)장원 Official 웹사이트를 기반으로 제작되었습니다.</p>
+          <p>© 2026 주식회사 서진 (SEAJIN CO., LTD.). All rights reserved.</p>
+          <p style={{ marginTop: '0.2rem' }}>신선하고 믿을 수 있는 학교급식 식자재유통 전문기업 주식회사 서진</p>
         </div>
       </div>
     </footer>

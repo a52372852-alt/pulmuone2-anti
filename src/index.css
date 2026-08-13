@@ -237,3 +237,22 @@ button {
   color: #d32f2f;
   margin-top: 0.1rem;
 }
+
+/* 🌟 Clean Static NEW Icon Badge (20% 작아진 맑고 깔끔한 정적 뱃지) */
+.new-badge-blink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ef4444;
+  color: #ffffff;
+  font-size: 0.55rem;
+  font-weight: 900;
+  padding: 0.08rem 0.32rem;
+  border-radius: 3px;
+  margin-left: 0.35rem;
+  letter-spacing: 0.02em;
+  box-shadow: none;
+  border: none;
+  vertical-align: middle;
+  line-height: 1;
+}

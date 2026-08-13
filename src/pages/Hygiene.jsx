@@ -12,7 +12,7 @@ export default function Hygiene() {
           위생 & 품질관리 시스템 (Hygiene Control)
         </h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
-          (주)장원은 365일 무결점 HACCP 인증 위생 체계와 방사능·잔류농약 100% 정밀검사를 수행합니다.
+          주식회사 서진은 365일 무결점 HACCP 인증 위생 체계와 방사능·잔류농약 100% 정밀검사를 수행합니다.
         </p>
       </div>
 

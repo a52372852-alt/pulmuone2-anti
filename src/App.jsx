@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
-import Navbar from './components/Navbar';
+import { NavigationBar } from './components/Navbar';
 import SubpageHeader from './components/SubpageHeader';
 import Footer from './components/Footer';
 import SchoolSearchModal from './components/SchoolSearchModal';
@@ -59,17 +59,22 @@ function MainContent() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Navbar />
+      {/* 🌟 1. Subpage Real-Photo Hero Banner Header */}
       <SubpageHeader />
+
+      {/* 🌟 2. Navigation Bar Located Directly Below the Subpage Hero Image */}
+      {currentPage !== 'home' && <NavigationBar />}
+
+      {/* 🌟 3. Main Page Content */}
       <main style={{ flex: 1 }}>
         {renderPage()}
       </main>
+
       <Footer />
       <SchoolSearchModal />
     </div>
   );
 }
-
 
 export default function App() {
   return (

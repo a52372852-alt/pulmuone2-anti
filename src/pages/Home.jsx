@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { BRANDS, PROMOTION_PRODUCTS, MAIN_NOTICES, RECOMMENDED_RECIPES } from '../data/jwFsOriginalData';
-import { ChevronRight, Sparkles, Tag, Flame } from 'lucide-react';
+import { Sparkles, Tag, Leaf } from 'lucide-react';
+import { NavigationBar } from '../components/Navbar';
 
 export default function Home() {
   const { setCurrentPage } = useApp();
@@ -11,161 +12,275 @@ export default function Home() {
   const filteredProducts = PROMOTION_PRODUCTS.filter(p => p.brandId === selectedBrandId || selectedBrandId === 'all');
 
   return (
-    <div className="container animate-fade-in" style={{ padding: '1.5rem 1rem 4rem 1rem' }}>
-      
-      {/* 1. Middle 3-Column Content Block (스크린샷 2 중단 레이아웃 100% 동일) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.25rem', marginBottom: '2rem' }}>
+    <div className="animate-fade-in" style={{ paddingBottom: '4rem' }}>
+
+      {/* 🌟 1. FRESH REAL-PHOTO HERO BANNER (상단 높이 100px 확대: minHeight 380px) */}
+      <section style={{
+        position: 'relative',
+        backgroundImage: 'url("/hero-fresh-produce.jpg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center 50%',
+        minHeight: '380px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        padding: '1.75rem 0 1.25rem 0',
+        overflow: 'hidden'
+      }}>
+        <div className="container" style={{ position: 'relative', zIndex: 2, width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+          
+          {/* 🌟 Bottom Right Basket Area Box: Centered Logo + Centered Text Below */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            padding: '0.85rem 1.25rem',
+            borderRadius: '12px',
+            borderLeft: '4px solid #10b981',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16)',
+            backdropFilter: 'blur(8px)',
+            maxWidth: '330px',
+            margin: 0
+          }}>
+            {/* 1. Official Logo Image Centered */}
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', marginBottom: '0.4rem' }}>
+              <img
+                src="/seajin-logo-new.png"
+                alt="주식회사 서진 로고"
+                style={{
+                  height: '56px',
+                  width: 'auto',
+                  objectFit: 'contain',
+                  display: 'block',
+                  margin: '0 auto'
+                }}
+              />
+            </div>
+
+            {/* 2. Text Placed Below Logo Centered */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem', width: '100%' }}>
+              <h1 style={{
+                fontSize: '1.05rem',
+                fontWeight: '900',
+                lineHeight: '1.4',
+                letterSpacing: '-0.02em',
+                color: '#0f172a',
+                margin: 0,
+                textAlign: 'center'
+              }}>
+                신선하고 믿을 수 있는 <br />
+                <span style={{ color: '#0284c7', fontWeight: '900' }}>
+                  학교급식 식자재유통 전문기업
+                </span>
+              </h1>
+              <div style={{
+                fontSize: '0.78rem',
+                fontWeight: '700',
+                color: '#64748b',
+                marginTop: '0.2rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.3rem'
+              }}>
+                <Leaf size={13} color="#10b981" />
+                <span>주식회사 서진 · 충남 홍성 내포물류센터</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* 🌟 2. NAVIGATION BAR LOCATED DIRECTLY BELOW THE HERO IMAGE (히어로 이미지 바로 아래로 위치 복원) */}
+      <NavigationBar />
+
+      {/* 🌟 3. MAIN CONTENT SECTION */}
+      <div className="container" style={{ marginTop: '2rem' }}>
         
-        {/* Column 1: 신상품&행사 / 공지사항 Tab */}
-        <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
-          <div style={{ display: 'flex', borderBottom: '2px solid #0b69c7', marginBottom: '0.8rem' }}>
-            <button
-              onClick={() => setActiveTab('promotions')}
-              style={{
-                padding: '0.4rem 0.8rem',
-                fontWeight: '800',
-                fontSize: '0.85rem',
-                color: activeTab === 'promotions' ? '#0b69c7' : '#64748b',
-                borderBottom: activeTab === 'promotions' ? '3px solid #0b69c7' : 'none',
-                marginBottom: '-2px'
-              }}
-            >
-              신상품&행사
-            </button>
-            <button
-              onClick={() => setActiveTab('notices')}
-              style={{
-                padding: '0.4rem 0.8rem',
-                fontWeight: '800',
-                fontSize: '0.85rem',
-                color: activeTab === 'notices' ? '#0b69c7' : '#64748b',
-                borderBottom: activeTab === 'notices' ? '3px solid #0b69c7' : 'none',
-                marginBottom: '-2px'
-              }}
-            >
-              공지사항
-            </button>
-            <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#94a3b8', cursor: 'pointer' }}>+ more</span>
-          </div>
+        {/* Middle 3-Column Content Block */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.25rem', marginBottom: '2rem' }}>
+          
+          {/* Column 1: 신상품&행사 / 공지사항 Tab */}
+          <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
+            <div style={{ display: 'flex', borderBottom: '2px solid #0b69c7', marginBottom: '0.8rem' }}>
+              <button
+                onClick={() => setActiveTab('promotions')}
+                style={{
+                  padding: '0.4rem 0.8rem',
+                  fontWeight: '800',
+                  fontSize: '0.85rem',
+                  color: activeTab === 'promotions' ? '#0b69c7' : '#64748b',
+                  borderBottom: activeTab === 'promotions' ? '3px solid #0b69c7' : 'none',
+                  marginBottom: '-2px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                신상품&행사
+              </button>
+              <button
+                onClick={() => setActiveTab('notices')}
+                style={{
+                  padding: '0.4rem 0.8rem',
+                  fontWeight: '800',
+                  fontSize: '0.85rem',
+                  color: activeTab === 'notices' ? '#0b69c7' : '#64748b',
+                  borderBottom: activeTab === 'notices' ? '3px solid #0b69c7' : 'none',
+                  marginBottom: '-2px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                공지사항
+              </button>
+              <span onClick={() => setCurrentPage('customer')} style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#94a3b8', cursor: 'pointer' }}>+ more</span>
+            </div>
 
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem' }}>
-            {MAIN_NOTICES.map((text, idx) => (
-              <li key={idx} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#334155', fontWeight: '600' }}>
-                • {text}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Column 2: 신상품&행사 New & Event Banner Showcase */}
-        <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
-            <span style={{ fontWeight: '800', fontSize: '0.9rem', color: '#d32f2f' }}>신상품&행사 <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '400' }}>New & Event</span></span>
-            <span style={{ fontSize: '0.75rem', color: '#94a3b8', cursor: 'pointer' }}>+ more</span>
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            {[1, 2, 3].map(i => (
-              <div key={i} style={{ flex: 1, height: '100px', backgroundColor: '#f1f5f9', borderRadius: '4px', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', color: '#94a3b8', fontWeight: '700' }}>
-                행사 포스터 {i}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Column 3: 추천레시피 Best Recipe */}
-        <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
-            <span style={{ fontWeight: '800', fontSize: '0.9rem', color: '#0b69c7' }}>추천레시피 <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '400' }}>Best Recipe</span></span>
-            <span style={{ fontSize: '0.75rem', color: '#94a3b8', cursor: 'pointer' }}>+ more</span>
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.6rem' }}>
-            {RECOMMENDED_RECIPES.map(rec => (
-              <div key={rec.id} style={{ flex: 1, backgroundColor: '#f8fafc', borderRadius: '4px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                <img src={rec.image} alt={rec.title} style={{ width: '100%', height: '65px', objectFit: 'cover' }} />
-                <div style={{ padding: '0.3rem 0.4rem', fontSize: '0.72rem', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {rec.title}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Main 2-Column Section (스크린샷 1 & 2 하단 2단 레이아웃 100% 동일) */}
-      <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
-
-        {/* Left Sidebar: 제품소개 PRODUCTS (30개 전체 브랜드 카테고리) */}
-        <aside className="brand-sidebar">
-          <div className="brand-sidebar-header">
-            <div className="brand-sidebar-title">제품소개</div>
-            <div className="brand-sidebar-sub">PRODUCTS</div>
-          </div>
-
-          <ul className="brand-menu-list">
-            {BRANDS.map(brand => {
-              const isSelected = selectedBrandId === brand.id;
-              return (
-                <li
-                  key={brand.id}
-                  onClick={() => setSelectedBrandId(brand.id)}
-                  className={`brand-menu-item ${isSelected ? 'active' : ''}`}
-                >
-                  <span>{brand.name}</span>
-                  {brand.hasArrow && <span style={{ fontSize: '0.75rem', color: '#0b69c7' }}>›</span>}
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', margin: 0, padding: 0 }}>
+              {MAIN_NOTICES.map((text, idx) => (
+                <li key={idx} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#334155', fontWeight: '600' }}>
+                  • {text}
                 </li>
-              );
-            })}
-          </ul>
-        </aside>
-
-        {/* Right Main Product Showcase Grid (행사 배지 + 30,750원 -> 26,140원 할인가격) */}
-        <main style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '2px solid #0b69c7', paddingBottom: '0.5rem' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#0b69c7', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Tag size={18} /> 풀무원[풀스키친] 학기별 할인 행사 상품
-            </h3>
-            <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600' }}>* 2026학년도 1~2학기 특별 공급 단가 적용</span>
+              ))}
+            </ul>
           </div>
 
-          {/* Product Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-            {filteredProducts.map(product => (
-              <div key={product.id} className="product-item-card">
-                {/* Red Circular Event Badge (스크린샷 빨간 '행사' 배지 100% 동일) */}
-                {product.isEvent && <div className="event-badge">행사</div>}
+          {/* Column 2: 신상품&행사 New & Event Banner Showcase */}
+          <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
+              <span style={{ fontWeight: '800', fontSize: '0.9rem', color: '#d32f2f' }}>신상품&행사 <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '400' }}>New & Event</span></span>
+              <span onClick={() => setCurrentPage('promotions')} style={{ fontSize: '0.75rem', color: '#94a3b8', cursor: 'pointer' }}>+ more</span>
+            </div>
 
-                {/* Product Image */}
-                <div style={{ width: '100%', height: '140px', overflow: 'hidden', borderRadius: '4px', marginTop: '0.5rem' }}>
-                  <img src={product.img} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {[
+                { title: '8월 특가 기획전', color: '#eff6ff', textColor: '#1d4ed8' },
+                { title: '친환경 쌀 할인', color: '#ecfdf5', textColor: '#047857' },
+                { title: '신규 입고 델리', color: '#fff7ed', textColor: '#c2410c' }
+              ].map((item, i) => (
+                <div key={i} style={{
+                  flex: 1,
+                  height: '100px',
+                  backgroundColor: item.color,
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.78rem',
+                  color: item.textColor,
+                  fontWeight: '800',
+                  textAlign: 'center',
+                  padding: '0.4rem'
+                }}>
+                  <Sparkles size={18} style={{ marginBottom: '0.2rem' }} />
+                  {item.title}
                 </div>
-
-                {/* Brand & Category Name */}
-                <div className="product-title">{product.category}</div>
-
-                {/* Product Full Name & Spec */}
-                <div className="product-subtitle">
-                  {product.name}<br />
-                  <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '500' }}>{product.spec}</span>
-                </div>
-
-                {/* Original Strikethrough Price (Blue) */}
-                <div className="product-original-price">
-                  {product.originalPrice}원
-                </div>
-
-                {/* Sale Price (Red Big Bold) */}
-                <div className="product-sale-price">
-                  {product.salePrice}원
-                  <span style={{ fontSize: '0.7rem', display: 'block', color: '#d32f2f', fontWeight: '700', marginTop: '0.1rem' }}>
-                    {product.term}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </main>
+
+          {/* Column 3: 추천레시피 Best Recipe */}
+          <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
+              <span style={{ fontWeight: '800', fontSize: '0.9rem', color: '#0b69c7' }}>추천레시피 <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '400' }}>Best Recipe</span></span>
+              <span onClick={() => setCurrentPage('recipes')} style={{ fontSize: '0.75rem', color: '#94a3b8', cursor: 'pointer' }}>+ more</span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.6rem' }}>
+              {RECOMMENDED_RECIPES.map(rec => (
+                <div key={rec.id} style={{ flex: 1, backgroundColor: '#f8fafc', borderRadius: '4px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                  <img src={rec.image} alt={rec.title} style={{ width: '100%', height: '65px', objectFit: 'cover' }} />
+                  <div style={{ padding: '0.3rem 0.4rem', fontSize: '0.72rem', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {rec.title}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 4. Main 2-Column Section */}
+        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+
+          {/* Left Sidebar: 제품소개 PRODUCTS */}
+          <aside className="brand-sidebar">
+            <div className="brand-sidebar-header">
+              <div className="brand-sidebar-title">제품소개</div>
+              <div className="brand-sidebar-sub">PRODUCTS</div>
+            </div>
+
+            <ul className="brand-menu-list">
+              {BRANDS.map(brand => {
+                const isSelected = selectedBrandId === brand.id;
+                return (
+                  <li
+                    key={brand.id}
+                    onClick={() => setSelectedBrandId(brand.id)}
+                    className={`brand-menu-item ${isSelected ? 'active' : ''}`}
+                  >
+                    <span>{brand.name}</span>
+                    {brand.hasArrow && <span style={{ fontSize: '0.75rem', color: '#0b69c7' }}>›</span>}
+                  </li>
+                );
+              })}
+            </ul>
+          </aside>
+
+          {/* Right Main Product Showcase Grid */}
+          <main style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '2px solid #0b69c7', paddingBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#0b69c7', display: 'flex', alignItems: 'center', gap: '0.4rem', margin: 0 }}>
+                <Tag size={18} /> 주식회사 서진 & 풀무원[풀스키친] 학기별 할인 행사 상품
+              </h3>
+              <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600' }}>* 2026학년도 특별 공급 단가 적용</span>
+            </div>
+
+            {/* Product Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+              {filteredProducts.map(product => (
+                <div key={product.id} className="product-item-card">
+                  {/* Event Badge */}
+                  {product.isEvent && <div className="event-badge">행사</div>}
+
+                  {/* Product Image */}
+                  <div style={{ width: '100%', height: '140px', overflow: 'hidden', borderRadius: '4px', marginTop: '0.5rem' }}>
+                    <img src={product.img} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+
+                  {/* Brand & Category Name */}
+                  <div className="product-title">{product.category}</div>
+
+                  {/* Product Full Name & Spec */}
+                  <div className="product-subtitle">
+                    {product.name}<br />
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '500' }}>{product.spec}</span>
+                  </div>
+
+                  {/* Original Price */}
+                  <div className="product-original-price">
+                    {product.originalPrice}원
+                  </div>
+
+                  {/* Sale Price */}
+                  <div className="product-sale-price">
+                    {product.salePrice}원
+                    <span style={{ fontSize: '0.7rem', display: 'block', color: '#d32f2f', fontWeight: '700', marginTop: '0.1rem' }}>
+                      {product.term}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );

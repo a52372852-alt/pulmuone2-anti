@@ -12,7 +12,7 @@ export default function Business() {
       <div style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
         <span className="badge badge-accent" style={{ marginBottom: '0.4rem' }}>BUSINESS AREAS</span>
         <h2 style={{ fontSize: '2.2rem', fontWeight: '800', marginBottom: '0.4rem' }}>
-          (주)장원 사업분야 (Services)
+          주식회사 서진 사업분야 (Services)
         </h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
           학교급식부터 영유아, 복지, 기업 구내식당까지 맞춤형 식자재 솔루션을 제공합니다.
