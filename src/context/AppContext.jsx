@@ -24,6 +24,9 @@ export const AppProvider = ({ children }) => {
     return localStorage.getItem('geupsik_theme') || 'light';
   });
 
+  // Global Product Search Term
+  const [globalSearchTerm, setGlobalSearchTerm] = useState('');
+
   // School Search Modal Open State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -63,7 +66,9 @@ export const AppProvider = ({ children }) => {
         theme,
         toggleTheme,
         isSearchOpen,
-        setIsSearchOpen
+        setIsSearchOpen,
+        globalSearchTerm,
+        setGlobalSearchTerm
       }}
     >
       {children}
@@ -72,3 +77,4 @@ export const AppProvider = ({ children }) => {
 };
 
 export const useApp = () => useContext(AppContext);
+
