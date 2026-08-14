@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { BRANDS, PROMOTION_PRODUCTS } from '../data/jwFsOriginalData';
 import { useApp } from '../context/AppContext';
-import { Search, Tag, Sparkles, Filter, CheckCircle2, PhoneCall, ChevronRight, Home } from 'lucide-react';
+import { Search, Tag, Sparkles, Filter, CheckCircle2, ChevronRight, Home } from 'lucide-react';
 
 // 🌟 풀무원[풀스키친] 전용 30개 서브 카테고리 태그 목록 (유저 요청 캡처 화면 100% 반영)
 const PULMUONE_SUB_CATEGORIES = [
@@ -17,12 +17,32 @@ const SLOWMADE_SUB_CATEGORIES = [
   "전체보기", "꼬꼬킷", "함박/육가공류", "떡갈비/적전류", "미트볼류", "탕수육류", "음료류", "핫도그/후식류", "더 스윗(디저트)"
 ];
 
-export default function ProductCatalog({ isPromotionOnly = false }) {
-  const { globalSearchTerm, setGlobalSearchTerm, setCurrentPage } = useApp();
-  const [selectedBrandId, setSelectedBrandId] = useState('pulmuone'); // 기본값 풀무원[풀스키친]
+export default function ProductCatalog({ isPromotionOnly = false, defaultBrandId = 'pulmuone', showAllBrandsOption = true, sortNewestFirst = false }) {
+  const { globalSearchTerm, setGlobalSearchTerm, productOverrides } = useApp();
+  const [selectedBrandId, setSelectedBrandId] = useState(defaultBrandId);
   const [selectedSubCategory, setSelectedSubCategory] = useState('전체보기');
   const [searchTerm, setSearchTerm] = useState(globalSearchTerm || '');
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // 관리자가 올린 이미지/주원료/유통기한/공지메모를 기본 상품 데이터에 덮어씌움
+  const mergedProducts = useMemo(() => {
+    return PROMOTION_PRODUCTS.map(p => {
+      const ov = productOverrides[p.id];
+      if (!ov) return p;
+      return {
+        ...p,
+        img: ov.image_url || p.img,
+        name: ov.name || p.name,
+        salePrice: ov.price || p.salePrice,
+        spec: ov.spec || p.spec,
+        mainIngredient: ov.main_ingredient || p.mainIngredient,
+        storage: ov.storage || p.storage,
+        shelfLife: ov.shelf_life || p.shelfLife,
+        noticeMemo: ov.notice_memo || p.noticeMemo,
+        updatedAt: ov.updated_at || null,
+      };
+    });
+  }, [productOverrides]);
 
   useEffect(() => {
     if (globalSearchTerm) {
@@ -34,6 +54,7 @@ export default function ProductCatalog({ isPromotionOnly = false }) {
   const handleBrandChange = (brandId) => {
     setSelectedBrandId(brandId);
     setSelectedSubCategory('전체보기');
+    setSelectedProduct(null);
   };
 
   // 현재 브랜드에 따른 서브 카테고리 목록 추출
@@ -43,7 +64,7 @@ export default function ProductCatalog({ isPromotionOnly = false }) {
     if (selectedBrandId === 'all') return ["전체보기"];
     
     // 타 브랜드의 경우 제품 카테고리에서 자동 추출
-    const brandProducts = PROMOTION_PRODUCTS.filter(p => p.brandId === selectedBrandId);
+    const brandProducts = mergedProducts.filter(p => p.brandId === selectedBrandId);
     const subCats = new Set(["전체보기"]);
     brandProducts.forEach(p => {
       if (p.category.includes(' - ')) {
@@ -58,11 +79,11 @@ export default function ProductCatalog({ isPromotionOnly = false }) {
   const activeSubCategories = getSubCategories();
 
   // 제품 필터링 로직
-  const filteredProducts = PROMOTION_PRODUCTS.filter(p => {
+  let filteredProducts = mergedProducts.filter(p => {
     const matchesBrand = selectedBrandId === 'all' || p.brandId === selectedBrandId;
     const matchesSearch = p.name.includes(searchTerm) || p.category.includes(searchTerm) || p.spec.includes(searchTerm);
     const matchesPromotion = !isPromotionOnly || p.isEvent;
-    
+
     let matchesSubCategory = true;
     if (selectedSubCategory !== '전체보기') {
       matchesSubCategory = p.category.includes(selectedSubCategory) || p.name.includes(selectedSubCategory);
@@ -70,6 +91,15 @@ export default function ProductCatalog({ isPromotionOnly = false }) {
 
     return matchesBrand && matchesSearch && matchesPromotion && matchesSubCategory;
   });
+
+  // 전체 브랜드 보기에서는 관리자가 신규로 올린(수정한) 상품이 맨 앞에 오도록 정렬
+  if (sortNewestFirst && selectedBrandId === 'all') {
+    filteredProducts = [...filteredProducts].sort((a, b) => {
+      const at = a.updatedAt ? new Date(a.updatedAt).getTime() : -1;
+      const bt = b.updatedAt ? new Date(b.updatedAt).getTime() : -1;
+      return bt - at;
+    });
+  }
 
   const selectedBrandObj = BRANDS.find(b => b.id === selectedBrandId) || { name: '전체 브랜드' };
 
@@ -118,13 +148,15 @@ export default function ProductCatalog({ isPromotionOnly = false }) {
           </div>
 
           <ul className="brand-menu-list">
-            <li
-              onClick={() => handleBrandChange('all')}
-              className={`brand-menu-item ${selectedBrandId === 'all' ? 'active' : ''}`}
-            >
-              <span>전체 브랜드</span>
-              <span style={{ fontSize: '0.75rem', color: '#0b69c7' }}>›</span>
-            </li>
+            {showAllBrandsOption && (
+              <li
+                onClick={() => handleBrandChange('all')}
+                className={`brand-menu-item ${selectedBrandId === 'all' ? 'active' : ''}`}
+              >
+                <span>전체 브랜드</span>
+                <span style={{ fontSize: '0.75rem', color: '#0b69c7' }}>›</span>
+              </li>
+            )}
             {BRANDS.map(brand => {
               const isSelected = selectedBrandId === brand.id;
               return (
@@ -170,7 +202,7 @@ export default function ProductCatalog({ isPromotionOnly = false }) {
           </div>
 
           {/* 🌟 2. Sub Category Grid Box (풀무원/더 슬로우메이드 및 브랜드별 카테고리 상세분류 100% 반영) */}
-          {activeSubCategories.length > 1 && (
+          {!selectedProduct && activeSubCategories.length > 1 && (
             <div style={{
               border: selectedBrandId === 'slowmade' ? '2px solid #f59e0b' : '2px solid #84cc16',
               backgroundColor: selectedBrandId === 'slowmade' ? '#fffbeb' : '#f7fee7',
@@ -235,39 +267,109 @@ export default function ProductCatalog({ isPromotionOnly = false }) {
           )}
 
           {/* 🌟 3. Search & Product Count Status Bar */}
-          <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', backgroundColor: '#f8fafc', padding: '0.65rem 1rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '0.88rem', fontWeight: '800', color: '#0369a1' }}>
-                검색결과: 총 {filteredProducts.length}개 상품
-              </span>
-              {selectedSubCategory !== '전체보기' && (
-                <span style={{ fontSize: '0.78rem', backgroundColor: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: '700' }}>
-                  {selectedSubCategory}
+          {!selectedProduct && (
+            <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', backgroundColor: '#f8fafc', padding: '0.65rem 1rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.88rem', fontWeight: '800', color: '#0369a1' }}>
+                  검색결과: 총 {filteredProducts.length}개 상품
                 </span>
-              )}
-            </div>
+                {selectedSubCategory !== '전체보기' && (
+                  <span style={{ fontSize: '0.78rem', backgroundColor: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: '700' }}>
+                    {selectedSubCategory}
+                  </span>
+                )}
+              </div>
 
-            <div style={{ position: 'relative', width: '280px' }}>
-              <Search size={15} style={{ position: 'absolute', left: '0.7rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-              <input
-                type="text"
-                placeholder="결과 내 재검색 (예: 두부, 만두)"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.45rem 0.65rem 0.45rem 2.2rem',
-                  borderRadius: '4px',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '0.82rem',
-                  outline: 'none'
-                }}
-              />
+              <div style={{ position: 'relative', width: '280px' }}>
+                <Search size={15} style={{ position: 'absolute', left: '0.7rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                <input
+                  type="text"
+                  placeholder="결과 내 재검색 (예: 두부, 만두)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.45rem 0.65rem 0.45rem 2.2rem',
+                    borderRadius: '4px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.82rem',
+                    outline: 'none'
+                  }}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* 🌟 4. Products List Grid */}
-          {filteredProducts.length === 0 ? (
+          {/* 🌟 4. Product Detail View (jw-fs.kr 스타일: 팝업 대신 같은 영역에서 상세 정보로 전환) */}
+          {selectedProduct ? (
+            <div>
+              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', padding: '1.5rem', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: '#ffffff' }}>
+                <div style={{ width: '280px', flexShrink: 0, border: '1px solid #e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                  <img
+                    src={selectedProduct.img}
+                    alt={selectedProduct.name}
+                    style={{ width: '100%', height: '280px', objectFit: 'cover', display: 'block' }}
+                  />
+                </div>
+
+                <div style={{ flex: 1, minWidth: '260px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                    <tbody>
+                      {[
+                        ['제품명', selectedProduct.name],
+                        ['단가', <span key="price"><span style={{ fontWeight: '900', color: '#d32f2f', fontSize: '1.05rem' }}>{selectedProduct.salePrice}원</span> <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '0.82rem' }}>{selectedProduct.originalPrice}원</span></span>],
+                        ['제품규격', selectedProduct.spec],
+                        ['주원료', selectedProduct.mainIngredient || '-'],
+                        ['보관방법', selectedProduct.storage],
+                        ['유통기한', selectedProduct.shelfLife || '-'],
+                      ].map(([label, value]) => (
+                        <tr key={label} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '0.6rem 0.5rem', width: '110px', verticalAlign: 'top' }}>
+                            <span style={{ display: 'inline-block', backgroundColor: 'var(--jw-blue-main)', color: '#ffffff', fontSize: '0.78rem', fontWeight: '800', padding: '0.25rem 0.6rem', borderRadius: '3px' }}>
+                              {label}
+                            </span>
+                          </td>
+                          <td style={{ padding: '0.6rem 0.5rem', color: '#1e293b', fontWeight: '600' }}>{value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                    {selectedProduct.isEvent && (
+                      <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#d32f2f', border: '1px solid #fca5a5', backgroundColor: '#fef2f2', padding: '0.3rem 0.7rem', borderRadius: '4px' }}>
+                        행사상품
+                      </span>
+                    )}
+                    <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#0369a1', border: '1px solid #bae6fd', backgroundColor: '#f0f9ff', padding: '0.3rem 0.7rem', borderRadius: '4px' }}>
+                      학교급식 특별단가
+                    </span>
+                  </div>
+
+                  {selectedProduct.noticeMemo && (
+                    <div style={{ marginTop: '1.25rem', backgroundColor: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px', padding: '0.9rem 1rem' }}>
+                      <div style={{ fontSize: '0.78rem', fontWeight: '900', color: '#b45309', marginBottom: '0.35rem' }}>
+                        📌 조리사 안내 메모
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#78350f', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
+                        {selectedProduct.noticeMemo}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+                <button
+                  onClick={() => setSelectedProduct(null)}
+                  className="btn btn-outline"
+                  style={{ padding: '0.5rem 2.5rem', fontSize: '0.85rem', fontWeight: '800' }}
+                >
+                  BACK
+                </button>
+              </div>
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <div style={{ padding: '4rem 2rem', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
               <Filter size={40} color="#94a3b8" style={{ marginBottom: '0.75rem' }} />
               <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#475569' }}>선택하신 조건에 해당하는 제품이 준비 중입니다.</h3>
@@ -333,80 +435,6 @@ export default function ProductCatalog({ isPromotionOnly = false }) {
           )}
         </main>
       </div>
-
-      {/* Product Detail Modal */}
-      {selectedProduct && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          backdropFilter: 'blur(4px)'
-        }}>
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            padding: '2rem',
-            width: '90%',
-            maxWidth: '520px',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <div>
-                <span className="badge badge-primary" style={{ marginBottom: '0.3rem' }}>{selectedProduct.category}</span>
-                <h3 style={{ fontSize: '1.35rem', fontWeight: '900', color: '#0f172a', margin: 0 }}>
-                  {selectedProduct.name}
-                </h3>
-              </div>
-              <button
-                onClick={() => setSelectedProduct(null)}
-                style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#94a3b8' }}
-              >
-                ✕
-              </button>
-            </div>
-
-            <img
-              src={selectedProduct.img}
-              alt={selectedProduct.name}
-              style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '6px', marginBottom: '1rem' }}
-            />
-
-            <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '6px', marginBottom: '1.25rem', border: '1px solid #e2e8f0', fontSize: '0.88rem' }}>
-              <div style={{ marginBottom: '0.4rem' }}><strong>규격/포장:</strong> {selectedProduct.spec}</div>
-              <div style={{ marginBottom: '0.4rem' }}><strong>보관 방법:</strong> {selectedProduct.storage}</div>
-              <div style={{ marginBottom: '0.4rem' }}><strong>정상 공급가:</strong> <span style={{ textDecoration: 'line-through', color: '#94a3b8' }}>{selectedProduct.originalPrice}원</span></div>
-              <div style={{ fontSize: '1.1rem', fontWeight: '900', color: '#d32f2f' }}>
-                학교급식 특별 단가: {selectedProduct.salePrice}원
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-              <button
-                onClick={() => setSelectedProduct(null)}
-                className="btn btn-outline"
-                style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
-              >
-                닫기
-              </button>
-              <button
-                onClick={() => { setSelectedProduct(null); setCurrentPage('customer'); }}
-                className="btn btn-primary"
-                style={{ padding: '0.5rem 1.2rem', fontSize: '0.85rem', fontWeight: '800' }}
-              >
-                <PhoneCall size={15} /> 견적 & 샘플 신청
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }

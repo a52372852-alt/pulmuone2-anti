@@ -51,6 +51,14 @@ export default function Footer() {
         <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem', textAlign: 'center', color: 'var(--text-light)', fontSize: '0.8rem' }}>
           <p>© 2026 주식회사 서진 (SEAJIN CO., LTD.). All rights reserved.</p>
           <p style={{ marginTop: '0.2rem' }}>신선하고 믿을 수 있는 학교급식 식자재유통 전문기업 주식회사 서진</p>
+          <p style={{ marginTop: '0.6rem' }}>
+            <button
+              onClick={() => setCurrentPage('admin')}
+              style={{ color: 'var(--text-light)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textDecoration: 'underline' }}
+            >
+              관리자
+            </button>
+          </p>
         </div>
       </div>
     </footer>

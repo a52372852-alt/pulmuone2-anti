@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { NOTICES } from '../data/jwFsData';
 import { Bell, MessageSquare, Edit3, Send, CheckCircle2, Lock, User, Eye, ArrowLeft, Sparkles } from 'lucide-react';
+import BoardPage from './BoardPage';
 
 export default function CustomerCenter() {
   const [activeTab, setActiveTab] = useState('notice'); // 'notice' | 'freeboard'
@@ -193,38 +193,12 @@ export default function CustomerCenter() {
 
       {/* 1. TAB: 공지사항 */}
       {activeTab === 'notice' && (
-        <div className="glass-card" style={{ padding: '2rem' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Bell size={20} color="var(--primary)" /> 주식회사 서진 최신 공지 및 위생 안내문
-          </h3>
-
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border-color)', color: 'var(--text-muted)' }}>
-                  <th style={{ padding: '0.75rem', width: '80px' }}>번호</th>
-                  <th style={{ padding: '0.75rem' }}>제목</th>
-                  <th style={{ padding: '0.75rem', width: '120px' }}>등록일</th>
-                  <th style={{ padding: '0.75rem', width: '80px' }}>조회수</th>
-                </tr>
-              </thead>
-              <tbody>
-                {NOTICES.map(item => (
-                  <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}>
-                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: '700', color: 'var(--primary)' }}>{item.id}</td>
-                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: '700' }}>
-                      {item.title}
-                      {/* 공지사항 최근 24시간 내 글 NEW 반짝임 뱃지 */}
-                      {item.id === 1 && <span className="new-badge-blink">NEW</span>}
-                    </td>
-                    <td style={{ padding: '0.85rem 0.75rem', color: 'var(--text-muted)' }}>{item.date}</td>
-                    <td style={{ padding: '0.85rem 0.75rem', color: 'var(--text-muted)' }}>{item.views}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <BoardPage
+          category="notice"
+          heading="공지사항 & 위생안내"
+          icon={Bell}
+          emptyText="아직 등록된 공지사항이 없습니다."
+        />
       )}
 
       {/* 2. TAB: 자유게시판 (비회원 글쓰기 & 24시간 깜빡이는 NEW 뱃지) */}

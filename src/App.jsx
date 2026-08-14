@@ -4,6 +4,7 @@ import { NavigationBar } from './components/Navbar';
 import SubpageHeader from './components/SubpageHeader';
 import Footer from './components/Footer';
 import SchoolSearchModal from './components/SchoolSearchModal';
+import ScrollToTopButton from './components/ScrollToTopButton';
 
 import Home from './pages/Home';
 import Company from './pages/Company';
@@ -16,6 +17,9 @@ import SchoolSearch from './pages/SchoolSearch';
 import Community from './pages/Community';
 import NutritionGuide from './pages/NutritionGuide';
 import KitchenIntro from './pages/KitchenIntro';
+import Admin from './pages/Admin';
+import BoardPage from './pages/BoardPage';
+import { Sparkles } from 'lucide-react';
 
 function MainContent() {
   const { currentPage } = useApp();
@@ -35,13 +39,13 @@ function MainContent() {
       case 'hygiene':
         return <Hygiene />;
       case 'products':
-        return <ProductCatalog isPromotionOnly={false} />;
+        return <ProductCatalog isPromotionOnly={false} showAllBrandsOption={false} />;
       case 'promotions':
-        return <ProductCatalog isPromotionOnly={true} />;
+        return <BoardPage category="promotion" heading="신상품&행사" icon={Sparkles} emptyText="아직 등록된 신상품&행사 소식이 없습니다." />;
       case 'recipes':
-        return <WeeklyMenu initialTab="recipe" />;
+        return <WeeklyMenu />;
       case 'weekly':
-        return <WeeklyMenu initialTab="menu" />;
+        return <WeeklyMenu />;
       case 'customer':
         return <CustomerCenter />;
       case 'search':
@@ -52,6 +56,8 @@ function MainContent() {
         return <NutritionGuide />;
       case 'kitchen':
         return <KitchenIntro />;
+      case 'admin':
+        return <Admin />;
       default:
         return <Home />;
     }
@@ -72,6 +78,7 @@ function MainContent() {
 
       <Footer />
       <SchoolSearchModal />
+      <ScrollToTopButton />
     </div>
   );
 }

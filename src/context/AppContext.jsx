@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { SAMPLE_SCHOOLS } from '../data/mockData';
+import { supabase } from '../lib/supabaseClient';
 
 const AppContext = createContext();
 
@@ -29,6 +30,24 @@ export const AppProvider = ({ children }) => {
 
   // School Search Modal Open State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // 관리자가 올린 상품별 추가정보(이미지/주원료/유통기한/공지메모) - product_id를 key로 하는 맵
+  const [productOverrides, setProductOverrides] = useState({});
+
+  const refreshProductOverrides = useCallback(async () => {
+    const { data, error } = await supabase.from('product_overrides').select('*');
+    if (error) {
+      console.error('상품 추가정보 조회 실패:', error.message);
+      return;
+    }
+    const map = {};
+    (data || []).forEach(row => { map[row.product_id] = row; });
+    setProductOverrides(map);
+  }, []);
+
+  useEffect(() => {
+    refreshProductOverrides();
+  }, [refreshProductOverrides]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -68,7 +87,9 @@ export const AppProvider = ({ children }) => {
         isSearchOpen,
         setIsSearchOpen,
         globalSearchTerm,
-        setGlobalSearchTerm
+        setGlobalSearchTerm,
+        productOverrides,
+        refreshProductOverrides
       }}
     >
       {children}

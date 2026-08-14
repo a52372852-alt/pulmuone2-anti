@@ -90,6 +90,15 @@ export const PAGE_HEADER_CONFIG = {
     description: '스마트 학교급식 조리실 기구 및 현대화 위생 설비를 안내합니다.',
     breadcrumb: ['홈', '조리실 시설안내'],
     bgImage: '/subpage-company-bg.jpg'
+  },
+  admin: {
+    title: '관리자',
+    engTitle: 'ADMIN',
+    category: '사이트 관리',
+    description: '관리자 로그인 페이지입니다. 상품 정보와 게시판 글을 관리합니다.',
+    breadcrumb: ['홈', '관리자'],
+    bgImage: '/admin-hero.png',
+    overlay: 'linear-gradient(90deg, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.32) 50%, rgba(15, 23, 42, 0.15) 100%)'
   }
 };
 
@@ -130,7 +139,7 @@ export default function SubpageHeader() {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'linear-gradient(90deg, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.55) 50%, rgba(15, 23, 42, 0.25) 100%)',
+          background: config.overlay || 'linear-gradient(90deg, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.55) 50%, rgba(15, 23, 42, 0.25) 100%)',
           zIndex: 1
         }}
       />

@@ -6,7 +6,7 @@ export const COMPANY_INFO = {
   address: "충남 홍성군 홍성읍 백월로 59 내포물류센터",
   tel: "041-634-1762",
   fax: "041-634-9828",
-  email: "contact@seajin-fs.co.kr",
+  email: "hb4115@hanmail.net",
   haccpNo: "제 2018-0415호 (식품의약품안전처)",
   history: [
     { year: "2026", title: "충남 홍성군 내포물류센터 최신 콜드체인 시설 확장 및 정시 배송망 구축" },
