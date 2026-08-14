@@ -15,7 +15,7 @@ export default function Home() {
     <div className="animate-fade-in" style={{ paddingBottom: '4rem' }}>
 
       {/* 🌟 1. FRESH REAL-PHOTO HERO BANNER (상단 높이 100px 확대: minHeight 380px) */}
-      <section style={{
+      <section className="hero-section" style={{
         position: 'relative',
         backgroundImage: `url("${import.meta.env.BASE_URL}hero-fresh-produce.jpg")`,
         backgroundSize: 'cover',
@@ -27,10 +27,10 @@ export default function Home() {
         padding: '1.75rem 0 1.25rem 0',
         overflow: 'hidden'
       }}>
-        <div className="container" style={{ position: 'relative', zIndex: 2, width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="container hero-container" style={{ position: 'relative', zIndex: 2, width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
 
           {/* 🌟 Bottom Right Basket Area Box: Centered Logo + Centered Text Below */}
-          <div style={{
+          <div className="hero-logo-box" style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -102,7 +102,7 @@ export default function Home() {
       <div className="container" style={{ marginTop: '2rem' }}>
 
         {/* Middle 3-Column Content Block */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.25rem', marginBottom: '2rem' }}>
+        <div className="home-top-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
 
           {/* Column 1: 신상품&행사 / 공지사항 Tab */}
           <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
@@ -276,7 +276,7 @@ export default function Home() {
         </div>
 
         {/* 4. Main 2-Column Section */}
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+        <div className="home-main-section" style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
 
           {/* Left Sidebar: 제품소개 PRODUCTS */}
           <aside className="brand-sidebar">
@@ -303,8 +303,8 @@ export default function Home() {
           </aside>
 
           {/* Right Main Product Showcase Grid */}
-          <main style={{ flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '2px solid #0b69c7', paddingBottom: '0.5rem' }}>
+          <main style={{ flex: 1, width: '100%' }}>
+            <div className="home-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '2px solid #0b69c7', paddingBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#0b69c7', display: 'flex', alignItems: 'center', gap: '0.4rem', margin: 0 }}>
                 <Tag size={18} /> 주식회사 서진 & 풀무원[풀스키친] 학기별 할인 행사 상품
               </h3>
@@ -312,7 +312,7 @@ export default function Home() {
             </div>
 
             {/* Product Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+            <div className="home-product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem' }}>
               {filteredProducts.map(product => (
                 <div key={product.id} className="product-item-card">
                   {/* Event Badge */}

@@ -41,10 +41,10 @@ export function NavigationBar() {
         zIndex: 100
       }}
     >
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '52px' }}>
+      <div className="container jw-nav-container">
         
         {/* 💎 3D Deep Blue Navigation Menu Buttons */}
-        <nav style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+        <nav className="jw-nav-menu">
           {navMenuItems.map(item => {
             const isActive = currentPage === item.id;
             return (
@@ -53,18 +53,20 @@ export function NavigationBar() {
                 onClick={() => setCurrentPage(item.id)}
                 className={`jw-nav-item ${isActive ? 'active' : ''}`}
                 style={{
-                  padding: '0 1.25rem',
+                  padding: '0 1.1rem',
                   height: '100%',
                   border: 'none',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                   background: isActive
                     ? 'linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.12) 100%)'
                     : 'transparent',
                   color: '#ffffff',
                   fontWeight: isActive ? '900' : '700',
-                  fontSize: '0.94rem',
+                  fontSize: '0.92rem',
                   cursor: 'pointer',
                   transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
                   textShadow: '0 2px 4px rgba(15, 23, 42, 0.85)',
                   boxShadow: isActive
@@ -81,23 +83,23 @@ export function NavigationBar() {
         </nav>
 
         {/* Right Product Search & Theme Toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-          <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: '800', color: '#ffffff', textShadow: '0 1px 3px rgba(15,23,42,0.8)' }}>제품검색</span>
+        <div className="jw-nav-right" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <span className="jw-search-label" style={{ fontSize: '0.8rem', fontWeight: '800', color: '#ffffff', textShadow: '0 1px 3px rgba(15,23,42,0.8)', whiteSpace: 'nowrap' }}>제품검색</span>
             <input
               type="text"
               placeholder="검색어 입력"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                padding: '0.35rem 0.65rem',
-                fontSize: '0.82rem',
+                padding: '0.3rem 0.5rem',
+                fontSize: '0.8rem',
                 borderRadius: '6px',
                 border: '1.5px solid rgba(255, 255, 255, 0.85)',
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 color: '#0f172a',
                 outline: 'none',
-                width: '135px',
+                width: '110px',
                 fontWeight: '700',
                 boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.12)'
               }}
@@ -108,12 +110,13 @@ export function NavigationBar() {
                 background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                 color: 'white',
                 border: '1.5px solid rgba(255, 255, 255, 0.85)',
-                padding: '0.35rem 0.65rem',
+                padding: '0.3rem 0.5rem',
                 borderRadius: '6px',
-                fontSize: '0.82rem',
+                fontSize: '0.8rem',
                 fontWeight: '900',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(3, 105, 161, 0.4)'
+                boxShadow: '0 2px 8px rgba(3, 105, 161, 0.4)',
+                whiteSpace: 'nowrap'
               }}
               title="검색"
             >
@@ -128,18 +131,19 @@ export function NavigationBar() {
               background: 'rgba(255, 255, 255, 0.24)',
               border: '1.5px solid rgba(255, 255, 255, 0.85)',
               color: '#ffffff',
-              padding: '0.4rem',
+              padding: '0.35rem',
               borderRadius: '50%',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               backdropFilter: 'blur(6px)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+              flexShrink: 0
             }}
             title="테마 변경"
           >
-            {theme === 'light' ? <Moon size={15} /> : <Sun size={15} color="#f59e0b" />}
+            {theme === 'light' ? <Moon size={14} /> : <Sun size={14} color="#f59e0b" />}
           </button>
         </div>
       </div>

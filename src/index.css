@@ -264,3 +264,136 @@ button {
   vertical-align: middle;
   line-height: 1;
 }
+
+/* 📱 Mobile Responsive Layout Optimizations (한 화면에 잘림 없이 꽉 차게 보이도록 설정) */
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.jw-nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 52px;
+}
+
+.jw-nav-menu {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.jw-nav-menu::-webkit-scrollbar {
+  display: none;
+}
+
+.jw-nav-item {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+@media (max-width: 820px) {
+  .jw-nav-container {
+    flex-direction: column;
+    height: auto;
+    padding: 0.55rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .jw-nav-menu {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.2rem 0;
+  }
+
+  .jw-nav-item {
+    padding: 0.45rem 0.85rem !important;
+    font-size: 0.88rem !important;
+  }
+
+  .jw-nav-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hero-section {
+    min-height: 260px !important;
+    padding: 1rem 0 !important;
+  }
+
+  .hero-container {
+    justify-content: center !important;
+  }
+
+  .hero-logo-box {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .home-top-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .home-main-section {
+    flex-direction: column !important;
+  }
+
+  .brand-sidebar {
+    width: 100% !important;
+    margin-bottom: 1rem;
+  }
+
+  .brand-menu-list {
+    flex-direction: row !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .brand-menu-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .brand-menu-item {
+    white-space: nowrap;
+    border-bottom: none !important;
+    border-right: 1px solid #e2e8f0;
+    padding: 0.5rem 0.8rem !important;
+  }
+
+  .home-product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
+  }
+
+  .product-item-card {
+    padding: 0.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.6rem;
+  }
+
+  .home-product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .product-title {
+    font-size: 0.78rem !important;
+  }
+
+  .product-subtitle {
+    font-size: 0.76rem !important;
+  }
+
+  .jw-search-label {
+    display: none;
+  }
+}
+
