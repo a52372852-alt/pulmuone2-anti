@@ -17,7 +17,7 @@ export default function Home() {
       {/* 🌟 1. FRESH REAL-PHOTO HERO BANNER (상단 높이 100px 확대: minHeight 380px) */}
       <section style={{
         position: 'relative',
-        backgroundImage: 'url("/hero-fresh-produce.jpg")',
+        backgroundImage: `url("${import.meta.env.BASE_URL}hero-fresh-produce.jpg")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center 50%',
         minHeight: '380px',
@@ -47,7 +47,7 @@ export default function Home() {
             {/* 1. Official Logo Image Centered */}
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', marginBottom: '0.4rem' }}>
               <img
-                src="/seajin-logo-new.png"
+                src={`${import.meta.env.BASE_URL}seajin-logo-new.png`}
                 alt="주식회사 서진 로고"
                 style={{
                   height: '56px',

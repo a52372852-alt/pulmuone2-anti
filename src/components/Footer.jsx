@@ -18,7 +18,7 @@ export default function Footer() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.8rem' }}>
-              <img src="/seajin-logo.jpg" alt="주식회사 서진" style={{ height: '42px', objectFit: 'contain' }} />
+              <img src={`${import.meta.env.BASE_URL}seajin-logo.jpg`} alt="주식회사 서진" style={{ height: '42px', objectFit: 'contain' }} />
             </div>
             <p style={{ lineHeight: 1.65, color: 'var(--text-muted)', fontSize: '0.85rem' }}>
               {COMPANY_INFO.slogan}<br />

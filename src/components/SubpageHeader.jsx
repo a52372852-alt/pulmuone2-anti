@@ -102,7 +102,8 @@ export default function SubpageHeader() {
   }
 
   const config = PAGE_HEADER_CONFIG[currentPage];
-  const bgImg = config.bgImage || '/subpage-company-bg.jpg';
+  const rawBgImg = config.bgImage || '/subpage-company-bg.jpg';
+  const bgImg = `${import.meta.env.BASE_URL}${rawBgImg.replace(/^\//, '')}`;
 
   return (
     <div

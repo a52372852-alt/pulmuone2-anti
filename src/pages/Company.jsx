@@ -82,7 +82,7 @@ export default function Company() {
               boxShadow: '0 4px 15px rgba(0, 0, 0, 0.06)'
             }}>
               <img
-                src="/seajin-official-logo.jpg"
+                src={`${import.meta.env.BASE_URL}seajin-official-logo.jpg`}
                 alt="주식회사 서진 공식 로고"
                 style={{
                   width: '300px',
