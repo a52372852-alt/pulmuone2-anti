@@ -292,7 +292,7 @@ export default function Home() {
       </div>
 
       {/* 4. 제품소개 게시판 (네비게이션바 제품소개 클릭 시와 동일한 컴포넌트 재사용) */}
-      <ProductCatalog defaultBrandId="all" sortNewestFirst />
+      <ProductCatalog defaultBrandId="all" />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useApp } from '../context/AppContext';
-import { BRANDS, PROMOTION_PRODUCTS } from '../data/jwFsOriginalData';
+import { BRANDS } from '../data/jwFsOriginalData';
 import { LogIn, LogOut, UploadCloud, CheckCircle2, X, Pencil, Trash2 } from 'lucide-react';
 
 function LoginForm() {
@@ -65,57 +65,52 @@ function LoginForm() {
   );
 }
 
+const emptyForm = { name: '', salePrice: '', originalPrice: '', spec: '', mainIngredient: '', storage: '', shelfLife: '', term: '', isEvent: false, noticeMemo: '' };
+
 function ProductEditor() {
-  const { productOverrides, refreshProductOverrides } = useApp();
+  const { products, refreshProducts } = useApp();
   const [selectedBrandId, setSelectedBrandId] = useState(BRANDS[0].id);
-  const [selectedProductId, setSelectedProductId] = useState('');
+  const [selectedProductId, setSelectedProductId] = useState(''); // '' | 'new' | id
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [spec, setSpec] = useState('');
-  const [mainIngredient, setMainIngredient] = useState('');
-  const [storage, setStorage] = useState('');
-  const [shelfLife, setShelfLife] = useState('');
-  const [noticeMemo, setNoticeMemo] = useState('');
+  const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
 
-  const brandProducts = PROMOTION_PRODUCTS.filter(p => p.brandId === selectedBrandId);
-  const selectedProduct = PROMOTION_PRODUCTS.find(p => p.id === Number(selectedProductId));
+  const brandProducts = products.filter(p => p.brandId === selectedBrandId);
+  const selectedProduct = selectedProductId === 'new' ? null : products.find(p => p.id === Number(selectedProductId));
+  const isEditing = selectedProductId !== '';
 
-  // 브랜드 바꾸면 상품 선택 초기화
-  useEffect(() => {
-    setSelectedProductId('');
-  }, [selectedBrandId]);
+  useEffect(() => { setSelectedProductId(''); }, [selectedBrandId]);
 
-  // 상품 선택하면 현재 저장된 값(있으면)으로 폼 채우기
   useEffect(() => {
-    if (!selectedProduct) {
+    if (selectedProductId === 'new') {
+      setForm(emptyForm);
       setImagePreview('');
       setImageFile(null);
-      setName('');
-      setPrice('');
-      setSpec('');
-      setMainIngredient('');
-      setStorage('');
-      setShelfLife('');
-      setNoticeMemo('');
       setSavedMsg('');
       return;
     }
-    const ov = productOverrides[selectedProduct.id];
-    setImagePreview(ov?.image_url || selectedProduct.img || '');
+    if (!selectedProduct) return;
+    setForm({
+      name: selectedProduct.name || '',
+      salePrice: selectedProduct.salePrice || '',
+      originalPrice: selectedProduct.originalPrice || '',
+      spec: selectedProduct.spec || '',
+      mainIngredient: selectedProduct.mainIngredient || '',
+      storage: selectedProduct.storage || '',
+      shelfLife: selectedProduct.shelfLife || '',
+      term: selectedProduct.term || '',
+      isEvent: !!selectedProduct.isEvent,
+      noticeMemo: selectedProduct.noticeMemo || '',
+    });
+    setImagePreview(selectedProduct.img || '');
     setImageFile(null);
-    setName(ov?.name || selectedProduct.name || '');
-    setPrice(ov?.price || selectedProduct.salePrice || '');
-    setSpec(ov?.spec || selectedProduct.spec || '');
-    setMainIngredient(ov?.main_ingredient || '');
-    setStorage(ov?.storage || selectedProduct.storage || '');
-    setShelfLife(ov?.shelf_life || '');
-    setNoticeMemo(ov?.notice_memo || '');
     setSavedMsg('');
   }, [selectedProductId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const setField = (key) => (e) => setForm(prev => ({ ...prev, [key]: e.target.value }));
 
   const handleImagePick = (e) => {
     const file = e.target.files?.[0];
@@ -125,220 +120,150 @@ function ProductEditor() {
   };
 
   const handleSave = async () => {
-    if (!selectedProduct) return;
+    if (!form.name.trim()) { setSavedMsg('❌ 제품명을 입력해주세요.'); return; }
     setSaving(true);
     setSavedMsg('');
 
-    let imageUrl = productOverrides[selectedProduct.id]?.image_url || null;
-
+    let imageUrl = selectedProduct?.img || null;
     if (imageFile) {
       const ext = imageFile.name.split('.').pop();
-      const path = `product-${selectedProduct.id}-${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('product-images')
-        .upload(path, imageFile, { upsert: true });
-
+      const path = `product-${selectedBrandId}-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from('product-images').upload(path, imageFile);
       if (uploadError) {
         setSaving(false);
         setSavedMsg('❌ 사진 업로드 실패: ' + uploadError.message);
         return;
       }
-
-      const { data: publicUrlData } = supabase.storage.from('product-images').getPublicUrl(path);
-      imageUrl = publicUrlData.publicUrl;
+      imageUrl = supabase.storage.from('product-images').getPublicUrl(path).data.publicUrl;
     }
 
-    const { error: saveError } = await supabase.from('product_overrides').upsert({
-      product_id: selectedProduct.id,
-      image_url: imageUrl,
-      name,
-      price,
-      spec,
-      main_ingredient: mainIngredient,
-      storage,
-      shelf_life: shelfLife,
-      notice_memo: noticeMemo,
+    const brandName = BRANDS.find(b => b.id === selectedBrandId)?.name || selectedBrandId;
+    const payload = {
+      brand_id: selectedBrandId,
+      category: selectedProduct?.category || `${brandName} - ${brandName}`,
+      name: form.name,
+      sale_price: form.salePrice,
+      original_price: form.originalPrice,
+      spec: form.spec,
+      main_ingredient: form.mainIngredient,
+      storage: form.storage,
+      shelf_life: form.shelfLife,
+      term: form.term,
+      is_event: form.isEvent,
+      notice_memo: form.noticeMemo,
+      img: imageUrl,
       updated_at: new Date().toISOString(),
-    });
+    };
+
+    const { error: saveError } = selectedProductId === 'new'
+      ? await supabase.from('products').insert(payload)
+      : await supabase.from('products').update(payload).eq('id', selectedProduct.id);
 
     setSaving(false);
+    if (saveError) { setSavedMsg('❌ 저장 실패: ' + saveError.message); return; }
 
-    if (saveError) {
-      setSavedMsg('❌ 저장 실패: ' + saveError.message);
-      return;
-    }
-
-    await refreshProductOverrides();
+    await refreshProducts();
     setImageFile(null);
-    setSavedMsg('✅ 저장되었습니다! 사이트에 바로 반영됩니다.');
+    setSavedMsg(selectedProductId === 'new' ? '✅ 새 상품이 등록되었습니다!' : '✅ 저장되었습니다! 사이트에 바로 반영됩니다.');
+    if (selectedProductId === 'new') setSelectedProductId('');
   };
+
+  const handleDelete = async () => {
+    if (!selectedProduct) return;
+    if (!window.confirm(`"${selectedProduct.name}" 상품을 삭제할까요?`)) return;
+    setDeleting(true);
+    await supabase.from('products').delete().eq('id', selectedProduct.id);
+    setDeleting(false);
+    setSelectedProductId('');
+    await refreshProducts();
+  };
+
+  const fields = [
+    ['제품명', 'name', 'text'],
+    ['단가', 'salePrice', 'text', '예: 26,140'],
+    ['정상가', 'originalPrice', 'text', '예: 30,750'],
+    ['제품규격', 'spec', 'text', '예: 3kg'],
+    ['주원료', 'mainIngredient', 'text', '예: 대두(국산)100%, 정제소금'],
+    ['보관방법', 'storage', 'text', '예: 냉장보관 (0~10℃)'],
+    ['유통기한', 'shelfLife', 'text', '예: 냉장 10일'],
+    ['공급 기간', 'term', 'text', '예: (26년 1~2학기)'],
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-      {/* 1. 브랜드 선택 */}
       <div>
         <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
           ① 브랜드를 선택하세요
         </label>
-        <select
-          value={selectedBrandId}
-          onChange={(e) => setSelectedBrandId(e.target.value)}
-          style={{ width: '100%', padding: '0.75rem', fontSize: '1rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-        >
+        <select value={selectedBrandId} onChange={(e) => setSelectedBrandId(e.target.value)} style={{ width: '100%', padding: '0.75rem', fontSize: '1rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
           {BRANDS.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
         </select>
       </div>
 
-      {/* 2. 상품 선택 */}
       <div>
         <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-          ② 수정할 상품을 선택하세요
+          ② 상품을 선택하거나 새로 추가하세요
         </label>
-        <select
-          value={selectedProductId}
-          onChange={(e) => setSelectedProductId(e.target.value)}
-          style={{ width: '100%', padding: '0.75rem', fontSize: '1rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-        >
-          <option value="">-- 상품을 선택하세요 --</option>
+        <select value={selectedProductId} onChange={(e) => setSelectedProductId(e.target.value)} style={{ width: '100%', padding: '0.75rem', fontSize: '1rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+          <option value="">-- 선택하세요 --</option>
+          <option value="new">➕ 새 상품 추가</option>
           {brandProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
 
-      {selectedProduct && (
+      {isEditing && (
         <div style={{ border: '2px solid #0b69c7', borderRadius: '10px', padding: '1.5rem', backgroundColor: '#f8fafc' }}>
           <h3 style={{ fontSize: '1.05rem', fontWeight: '900', color: '#0b69c7', marginBottom: '1.25rem' }}>
-            "{selectedProduct.name}" 수정
+            {selectedProductId === 'new' ? '새 상품 등록' : `"${selectedProduct?.name}" 수정`}
           </h3>
 
-          {/* 3. 사진 업로드 */}
           <div style={{ marginBottom: '1.25rem' }}>
             <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.5rem' }}>
-              ③ 상품 사진 (선택 안 하면 기존 사진 유지)
+              ③ 상품 사진
             </label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
               {imagePreview && (
                 <img src={imagePreview} alt="미리보기" style={{ width: '140px', height: '140px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
               )}
-              <label
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                  padding: '0.9rem 1.4rem', backgroundColor: '#0b69c7', color: '#ffffff',
-                  borderRadius: '8px', fontWeight: '800', fontSize: '1rem', cursor: 'pointer'
-                }}
-              >
-                <UploadCloud size={20} />
-                사진 선택하기
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.9rem 1.4rem', backgroundColor: '#0b69c7', color: '#ffffff', borderRadius: '8px', fontWeight: '800', fontSize: '1rem', cursor: 'pointer' }}>
+                <UploadCloud size={20} /> 사진 선택하기
                 <input type="file" accept="image/*" onChange={handleImagePick} style={{ display: 'none' }} />
               </label>
             </div>
           </div>
 
-          {/* 4. 제품명 */}
-          <div style={{ marginBottom: '1.1rem' }}>
-            <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-              ④ 제품명
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-            />
-          </div>
+          {fields.map(([label, key, , placeholder], idx) => (
+            <div key={key} style={{ marginBottom: '1.1rem' }}>
+              <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
+                ④{idx > 0 ? `-${idx + 1}` : ''} {label}
+              </label>
+              <input type="text" value={form[key]} onChange={setField(key)} placeholder={placeholder} style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+            </div>
+          ))}
 
-          {/* 5. 단가 */}
-          <div style={{ marginBottom: '1.1rem' }}>
-            <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-              ⑤ 단가
-            </label>
-            <input
-              type="text"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="예: 26,140"
-              style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-            />
-          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.1rem', fontSize: '0.95rem', fontWeight: '700', cursor: 'pointer' }}>
+            <input type="checkbox" checked={form.isEvent} onChange={(e) => setForm(prev => ({ ...prev, isEvent: e.target.checked }))} />
+            행사 상품으로 표시
+          </label>
 
-          {/* 6. 제품규격 */}
-          <div style={{ marginBottom: '1.1rem' }}>
-            <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-              ⑥ 제품규격
-            </label>
-            <input
-              type="text"
-              value={spec}
-              onChange={(e) => setSpec(e.target.value)}
-              placeholder="예: 3kg"
-              style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-            />
-          </div>
-
-          {/* 7. 주원료 */}
-          <div style={{ marginBottom: '1.1rem' }}>
-            <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-              ⑦ 주원료
-            </label>
-            <input
-              type="text"
-              value={mainIngredient}
-              onChange={(e) => setMainIngredient(e.target.value)}
-              placeholder="예: 대두(국산)100%, 정제소금"
-              style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-            />
-          </div>
-
-          {/* 8. 보관방법 */}
-          <div style={{ marginBottom: '1.1rem' }}>
-            <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-              ⑧ 보관방법
-            </label>
-            <input
-              type="text"
-              value={storage}
-              onChange={(e) => setStorage(e.target.value)}
-              placeholder="예: 냉장보관 (0~10℃)"
-              style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-            />
-          </div>
-
-          {/* 9. 유통기한 */}
-          <div style={{ marginBottom: '1.1rem' }}>
-            <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-              ⑨ 유통기한
-            </label>
-            <input
-              type="text"
-              value={shelfLife}
-              onChange={(e) => setShelfLife(e.target.value)}
-              placeholder="예: 냉장 10일"
-              style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-            />
-          </div>
-
-          {/* 10. 공지 메모 */}
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-              ⑩ 조리사 안내 메모 (이 상품 사용하는 학교 조리사에게 보여줄 안내글)
+              ⑤ 조리사 안내 메모
             </label>
-            <textarea
-              value={noticeMemo}
-              onChange={(e) => setNoticeMemo(e.target.value)}
-              placeholder="예: 이번 달부터 포장 규격이 변경되었습니다. 조리 시 참고해주세요."
-              rows={4}
-              style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1', resize: 'vertical', fontFamily: 'inherit' }}
-            />
+            <textarea value={form.noticeMemo} onChange={setField('noticeMemo')} placeholder="예: 이번 달부터 포장 규격이 변경되었습니다." rows={4} style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1', resize: 'vertical', fontFamily: 'inherit' }} />
           </div>
 
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="btn btn-primary"
-            style={{ width: '100%', padding: '1rem', fontSize: '1.05rem', fontWeight: '900', justifyContent: 'center' }}
-          >
-            {saving ? '저장 중...' : '저장하기'}
-          </button>
+          <div style={{ display: 'flex', gap: '0.6rem' }}>
+            <button onClick={handleSave} disabled={saving} className="btn btn-primary" style={{ flex: 1, padding: '1rem', fontSize: '1.05rem', fontWeight: '900', justifyContent: 'center' }}>
+              {saving ? '저장 중...' : selectedProductId === 'new' ? '등록하기' : '저장하기'}
+            </button>
+            {selectedProductId !== 'new' && (
+              <button onClick={handleDelete} disabled={deleting} style={{ padding: '1rem 1.25rem', fontSize: '0.95rem', fontWeight: '800', color: '#d32f2f', border: '1px solid #fca5a5', borderRadius: '8px', backgroundColor: '#fef2f2', cursor: 'pointer' }}>
+                {deleting ? '삭제 중...' : '삭제'}
+              </button>
+            )}
+          </div>
 
           {savedMsg && (
             <div style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.95rem', fontWeight: '800', color: savedMsg.startsWith('✅') ? '#15803d' : '#d32f2f' }}>
@@ -613,6 +538,51 @@ function PostEditor() {
   );
 }
 
+function PasswordSettings() {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  const handleChange = async () => {
+    setMsg('');
+    if (newPassword.length < 6) { setMsg('❌ 비밀번호는 6자 이상이어야 합니다.'); return; }
+    if (newPassword !== confirmPassword) { setMsg('❌ 새 비밀번호가 서로 일치하지 않습니다.'); return; }
+    setSaving(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setSaving(false);
+    if (error) { setMsg('❌ 변경 실패: ' + error.message); return; }
+    setNewPassword('');
+    setConfirmPassword('');
+    setMsg('✅ 비밀번호가 변경되었습니다. 다음 로그인부터 새 비밀번호를 사용하세요.');
+  };
+
+  return (
+    <div style={{ border: '2px solid #0b69c7', borderRadius: '10px', padding: '1.5rem', backgroundColor: '#f8fafc', maxWidth: '420px' }}>
+      <h3 style={{ fontSize: '1.05rem', fontWeight: '900', color: '#0b69c7', marginBottom: '1.25rem' }}>비밀번호 변경</h3>
+
+      <div style={{ marginBottom: '1.1rem' }}>
+        <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>새 비밀번호</label>
+        <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+      </div>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>새 비밀번호 확인</label>
+        <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+      </div>
+
+      <button onClick={handleChange} disabled={saving} className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.05rem', fontWeight: '900', justifyContent: 'center' }}>
+        {saving ? '변경 중...' : '비밀번호 변경하기'}
+      </button>
+
+      {msg && (
+        <div style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.95rem', fontWeight: '800', color: msg.startsWith('✅') ? '#15803d' : '#d32f2f' }}>
+          {msg}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Admin() {
   const [session, setSession] = useState(undefined); // undefined = 확인 중, null = 비로그인
   const [activeTab, setActiveTab] = useState('product'); // 'product' | 'post'
@@ -670,9 +640,20 @@ export default function Admin() {
         >
           게시판 글 관리
         </button>
+        <button
+          onClick={() => setActiveTab('account')}
+          style={{
+            padding: '0.7rem 1.2rem', fontSize: '0.95rem', fontWeight: '800', border: 'none', background: 'none', cursor: 'pointer',
+            color: activeTab === 'account' ? '#0b69c7' : '#94a3b8',
+            borderBottom: activeTab === 'account' ? '3px solid #0b69c7' : '3px solid transparent',
+            marginBottom: '-2px'
+          }}
+        >
+          계정 설정
+        </button>
       </div>
 
-      {activeTab === 'product' ? <ProductEditor /> : <PostEditor />}
+      {activeTab === 'product' ? <ProductEditor /> : activeTab === 'post' ? <PostEditor /> : <PasswordSettings />}
     </div>
   );
 }

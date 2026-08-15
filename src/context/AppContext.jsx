@@ -31,23 +31,32 @@ export const AppProvider = ({ children }) => {
   // School Search Modal Open State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // 관리자가 올린 상품별 추가정보(이미지/주원료/유통기한/공지메모) - product_id를 key로 하는 맵
-  const [productOverrides, setProductOverrides] = useState({});
+  // 전체 상품 목록 (Supabase products 테이블이 정본 데이터)
+  const [products, setProducts] = useState([]);
 
-  const refreshProductOverrides = useCallback(async () => {
-    const { data, error } = await supabase.from('product_overrides').select('*');
+  const refreshProducts = useCallback(async () => {
+    const { data, error } = await supabase.from('products').select('*').order('id');
     if (error) {
-      console.error('상품 추가정보 조회 실패:', error.message);
+      console.error('상품 목록 조회 실패:', error.message);
       return;
     }
-    const map = {};
-    (data || []).forEach(row => { map[row.product_id] = row; });
-    setProductOverrides(map);
+    const mapped = (data || []).map(p => ({
+      ...p,
+      brandId: p.brand_id,
+      originalPrice: p.original_price,
+      salePrice: p.sale_price,
+      isEvent: p.is_event,
+      mainIngredient: p.main_ingredient,
+      shelfLife: p.shelf_life,
+      noticeMemo: p.notice_memo,
+      updatedAt: p.updated_at,
+    }));
+    setProducts(mapped);
   }, []);
 
   useEffect(() => {
-    refreshProductOverrides();
-  }, [refreshProductOverrides]);
+    refreshProducts();
+  }, [refreshProducts]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -88,8 +97,8 @@ export const AppProvider = ({ children }) => {
         setIsSearchOpen,
         globalSearchTerm,
         setGlobalSearchTerm,
-        productOverrides,
-        refreshProductOverrides
+        products,
+        refreshProducts
       }}
     >
       {children}

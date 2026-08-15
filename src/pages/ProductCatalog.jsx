@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { BRANDS, PROMOTION_PRODUCTS } from '../data/jwFsOriginalData';
+import React, { useState, useEffect } from 'react';
+import { BRANDS } from '../data/jwFsOriginalData';
 import { useApp } from '../context/AppContext';
 import { Search, Tag, Sparkles, Filter, CheckCircle2, ChevronRight, Home } from 'lucide-react';
 
@@ -17,32 +17,12 @@ const SLOWMADE_SUB_CATEGORIES = [
   "전체보기", "꼬꼬킷", "함박/육가공류", "떡갈비/적전류", "미트볼류", "탕수육류", "음료류", "핫도그/후식류", "더 스윗(디저트)"
 ];
 
-export default function ProductCatalog({ isPromotionOnly = false, defaultBrandId = 'pulmuone', showAllBrandsOption = true, sortNewestFirst = false }) {
-  const { globalSearchTerm, setGlobalSearchTerm, productOverrides } = useApp();
+export default function ProductCatalog({ isPromotionOnly = false, defaultBrandId = 'pulmuone', showAllBrandsOption = true }) {
+  const { globalSearchTerm, setGlobalSearchTerm, products } = useApp();
   const [selectedBrandId, setSelectedBrandId] = useState(defaultBrandId);
   const [selectedSubCategory, setSelectedSubCategory] = useState('전체보기');
   const [searchTerm, setSearchTerm] = useState(globalSearchTerm || '');
   const [selectedProduct, setSelectedProduct] = useState(null);
-
-  // 관리자가 올린 이미지/주원료/유통기한/공지메모를 기본 상품 데이터에 덮어씌움
-  const mergedProducts = useMemo(() => {
-    return PROMOTION_PRODUCTS.map(p => {
-      const ov = productOverrides[p.id];
-      if (!ov) return p;
-      return {
-        ...p,
-        img: ov.image_url || p.img,
-        name: ov.name || p.name,
-        salePrice: ov.price || p.salePrice,
-        spec: ov.spec || p.spec,
-        mainIngredient: ov.main_ingredient || p.mainIngredient,
-        storage: ov.storage || p.storage,
-        shelfLife: ov.shelf_life || p.shelfLife,
-        noticeMemo: ov.notice_memo || p.noticeMemo,
-        updatedAt: ov.updated_at || null,
-      };
-    });
-  }, [productOverrides]);
 
   useEffect(() => {
     if (globalSearchTerm) {
@@ -64,7 +44,7 @@ export default function ProductCatalog({ isPromotionOnly = false, defaultBrandId
     if (selectedBrandId === 'all') return ["전체보기"];
     
     // 타 브랜드의 경우 제품 카테고리에서 자동 추출
-    const brandProducts = mergedProducts.filter(p => p.brandId === selectedBrandId);
+    const brandProducts = products.filter(p => p.brandId === selectedBrandId);
     const subCats = new Set(["전체보기"]);
     brandProducts.forEach(p => {
       if (p.category.includes(' - ')) {
@@ -79,7 +59,7 @@ export default function ProductCatalog({ isPromotionOnly = false, defaultBrandId
   const activeSubCategories = getSubCategories();
 
   // 제품 필터링 로직
-  let filteredProducts = mergedProducts.filter(p => {
+  let filteredProducts = products.filter(p => {
     const matchesBrand = selectedBrandId === 'all' || p.brandId === selectedBrandId;
     const matchesSearch = p.name.includes(searchTerm) || p.category.includes(searchTerm) || p.spec.includes(searchTerm);
     const matchesPromotion = !isPromotionOnly || p.isEvent;
@@ -92,14 +72,12 @@ export default function ProductCatalog({ isPromotionOnly = false, defaultBrandId
     return matchesBrand && matchesSearch && matchesPromotion && matchesSubCategory;
   });
 
-  // 전체 브랜드 보기에서는 관리자가 신규로 올린(수정한) 상품이 맨 앞에 오도록 정렬
-  if (sortNewestFirst && selectedBrandId === 'all') {
-    filteredProducts = [...filteredProducts].sort((a, b) => {
-      const at = a.updatedAt ? new Date(a.updatedAt).getTime() : -1;
-      const bt = b.updatedAt ? new Date(b.updatedAt).getTime() : -1;
-      return bt - at;
-    });
-  }
+  // 관리자가 신규로 올렸거나 수정한 상품이 항상 맨 앞에 오도록 정렬
+  filteredProducts = [...filteredProducts].sort((a, b) => {
+    const at = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+    const bt = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+    return bt - at;
+  });
 
   const selectedBrandObj = BRANDS.find(b => b.id === selectedBrandId) || { name: '전체 브랜드' };
 

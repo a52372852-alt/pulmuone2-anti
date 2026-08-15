@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Sun, Moon, Home as HomeIcon } from 'lucide-react';
+import { Sun, Moon, Home as HomeIcon, Lock } from 'lucide-react';
 
 // 💎 3D Deep Blue Sapphire Crystal Full-Width Navigation Bar (웹사이트 좌우 100% 꽉 찬 3D 딥블루 크리스탈 바)
 export function NavigationBar() {
@@ -21,7 +21,8 @@ export function NavigationBar() {
     { id: 'products', label: '제품소개' },
     { id: 'promotions', label: '신상품&행사' },
     { id: 'recipes', label: '레시피&식단' },
-    { id: 'customer', label: '고객센터' }
+    { id: 'customer', label: '고객센터' },
+    { id: 'admin', label: '관리자', icon: <Lock size={13} style={{ marginRight: '4px' }} /> }
   ];
 
   return (
