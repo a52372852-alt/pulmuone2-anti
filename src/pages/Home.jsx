@@ -48,9 +48,6 @@ export default function Home() {
       {/* 🌟 1. FRESH REAL-PHOTO HERO BANNER (상단 높이 100px 확대: minHeight 380px) */}
       <section className="hero-section" style={{
         position: 'relative',
-        backgroundImage: `url("${import.meta.env.BASE_URL}hero-fresh-produce.jpg")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center 50%',
         minHeight: '380px',
         display: 'flex',
         flexDirection: 'column',
@@ -58,10 +55,14 @@ export default function Home() {
         padding: '1.75rem 0 1.25rem 0',
         overflow: 'hidden'
       }}>
+        <div
+          className="hero-bg-kenburns"
+          style={{ backgroundImage: `url("${import.meta.env.BASE_URL}hero-fresh-produce.jpg")` }}
+        />
         <div className="container hero-container" style={{ position: 'relative', zIndex: 2, width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
 
           {/* 🌟 Bottom Right Basket Area Box: Centered Logo + Centered Text Below */}
-          <div className="hero-logo-box" style={{
+          <div className="hero-logo-box hero-card-fade-in" style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',

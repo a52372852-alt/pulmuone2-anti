@@ -116,12 +116,10 @@ export default function SubpageHeader() {
 
   return (
     <div
+      key={currentPage}
       className="subpage-header-banner"
       style={{
         position: 'relative',
-        backgroundImage: `url("${bgImg}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center center',
         color: '#ffffff',
         padding: '3rem 1.25rem 3.5rem 1.25rem',
         minHeight: '280px',
@@ -131,6 +129,11 @@ export default function SubpageHeader() {
         overflow: 'hidden'
       }}
     >
+      <div
+        className="hero-bg-kenburns"
+        style={{ backgroundImage: `url("${bgImg}")` }}
+      />
+
       {/* Light/Medium Soft Overlay for high readability over real photo */}
       <div
         style={{
@@ -146,6 +149,7 @@ export default function SubpageHeader() {
 
       <div className="container" style={{ position: 'relative', zIndex: 2, width: '100%' }}>
         <div
+          className="hero-card-fade-in"
           style={{
             maxWidth: '680px',
             backgroundColor: 'rgba(255, 255, 255, 0.12)',

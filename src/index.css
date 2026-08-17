@@ -294,4 +294,27 @@ html, body {
   flex-shrink: 0 !important;
 }
 
+/* 🌟 랜딩페이지 히어로 배너: 배경은 고정, 문구 카드만 페이드인 효과 */
+.hero-bg-kenburns {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 50%;
+}
+
+@keyframes heroCardFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-card-fade-in {
+  animation: heroCardFadeIn 0.9s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-card-fade-in {
+    animation: none;
+  }
+}
+
 
