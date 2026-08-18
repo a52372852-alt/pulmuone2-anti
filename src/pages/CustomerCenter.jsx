@@ -5,10 +5,11 @@ import BoardPage from './BoardPage';
 export default function CustomerCenter() {
   const [activeTab, setActiveTab] = useState('notice'); // 'notice' | 'freeboard'
 
-  // 현재 시간 수식용
+  // 현재 시간 수식용 (렌더 시마다 재계산되지 않도록 고정된 절대 시각 사용 - NEW 배지가 24시간 후 정상적으로 사라지게 함)
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
-  const yesterday = new Date(now.getTime() - 22 * 60 * 60 * 1000).toISOString(); // 22시간 전 (24시간 이내)
+  const fixedRecentTimestamp = '2026-08-18T10:00:00.000Z'; // 게시글 5: 고정된 작성 시각
+  const fixedYesterdayTimestamp = '2026-08-17T17:00:00.000Z'; // 게시글 4: 고정된 작성 시각
   const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString(); // 48시간 전
 
   // 자유게시판 게시글 목록 (기본 샘플 데이터 + timestamp 추가)
@@ -17,8 +18,8 @@ export default function CustomerCenter() {
       id: 5,
       title: "2026학년도 2학기 친환경 쌀 공급 단가 문의드립니다.",
       author: "홍성고 영양사",
-      date: todayStr,
-      timestamp: new Date().toISOString(), // 방금 등록 (24시간 이내 -> NEW 깜빡임 표시)
+      date: '2026-08-18',
+      timestamp: fixedRecentTimestamp, // 고정 시각 기준 24시간 이내면 NEW 표시, 지나면 자동으로 사라짐
       views: 42,
       content: "안녕하세요! 홍성고등학교 급식실입니다. 2학기 친환경 쌀 및 찹쌀 공급 단가표 요청드립니다. 항상 신선한 식자재 감사드립니다.",
       comments: [
@@ -29,8 +30,8 @@ export default function CustomerCenter() {
       id: 4,
       title: "풀스키친 미트볼 아이들이 너무 좋아하네요^^",
       author: "내포초 조리사",
-      date: todayStr,
-      timestamp: yesterday, // 22시간 전 등록 (24시간 이내 -> NEW 깜빡임 표시)
+      date: '2026-08-17',
+      timestamp: fixedYesterdayTimestamp, // 고정 시각 기준 24시간 이내면 NEW 표시, 지나면 자동으로 사라짐
       views: 89,
       content: "지난주 수요일 특식으로 풀스키친 미트볼 조리해 제공했는데 잔반이 거의 없을 정도로 아이들 반응이 폭발적이었습니다. 추천합니다!",
       comments: [
