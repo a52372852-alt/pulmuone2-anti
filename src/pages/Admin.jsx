@@ -277,8 +277,8 @@ function ProductEditor() {
 }
 
 const BOARD_CATEGORIES = [
-  { id: 'promotion', label: '신상품&행사' },
-  { id: 'recipe', label: '레시피&식단' },
+  { id: 'promotion', label: '서진 행사지' },
+  { id: 'recipe', label: '서진 레시피' },
   { id: 'notice', label: '공지사항' },
 ];
 
@@ -290,6 +290,8 @@ function PostEditor() {
   const [title, setTitle] = useState('');
   const [existingImages, setExistingImages] = useState([]); // 이미 저장된 이미지 URL들
   const [newImageFiles, setNewImageFiles] = useState([]); // 새로 추가할 파일들
+  const [existingAttachment, setExistingAttachment] = useState(null); // { url, name }
+  const [newAttachmentFile, setNewAttachmentFile] = useState(null);
   const [body, setBody] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
@@ -311,6 +313,8 @@ function PostEditor() {
     setTitle('');
     setExistingImages([]);
     setNewImageFiles([]);
+    setExistingAttachment(null);
+    setNewAttachmentFile(null);
     setBody('');
     setSavedMsg('');
   };
@@ -320,6 +324,8 @@ function PostEditor() {
     setTitle(post.title || '');
     setExistingImages(post.images || []);
     setNewImageFiles([]);
+    setExistingAttachment(post.attachment_url ? { url: post.attachment_url, name: post.attachment_name } : null);
+    setNewAttachmentFile(null);
     setBody(post.body || '');
     setSavedMsg('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -336,6 +342,12 @@ function PostEditor() {
 
   const removeNewImage = (idx) => {
     setNewImageFiles(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const handlePickAttachment = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setNewAttachmentFile(file);
   };
 
   const handleSave = async () => {
@@ -362,14 +374,29 @@ function PostEditor() {
 
     const finalImages = [...existingImages, ...uploadedUrls];
 
+    let attachmentUrl = existingAttachment?.url || null;
+    let attachmentName = existingAttachment?.name || null;
+    if (newAttachmentFile) {
+      const ext = newAttachmentFile.name.split('.').pop();
+      const path = `attach-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from('product-images').upload(path, newAttachmentFile);
+      if (uploadError) {
+        setSaving(false);
+        setSavedMsg('❌ 첨부파일 업로드 실패: ' + uploadError.message);
+        return;
+      }
+      attachmentUrl = supabase.storage.from('product-images').getPublicUrl(path).data.publicUrl;
+      attachmentName = newAttachmentFile.name;
+    }
+
     let saveError;
     if (editingId) {
       ({ error: saveError } = await supabase.from('board_posts').update({
-        title, images: finalImages, body,
+        title, images: finalImages, body, attachment_url: attachmentUrl, attachment_name: attachmentName,
       }).eq('id', editingId));
     } else {
       ({ error: saveError } = await supabase.from('board_posts').insert({
-        title, images: finalImages, body, category,
+        title, images: finalImages, body, category, attachment_url: attachmentUrl, attachment_name: attachmentName,
       }));
     }
 
@@ -469,9 +496,30 @@ function PostEditor() {
           </label>
         </div>
 
+        <div style={{ marginBottom: '1.1rem' }}>
+          <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.5rem' }}>
+            ③ 첨부파일 (PPTX, 선택)
+          </label>
+          {(existingAttachment || newAttachmentFile) && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.75rem', padding: '0.6rem 0.9rem', backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '6px' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#0369a1', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                📎 {newAttachmentFile ? newAttachmentFile.name : existingAttachment.name}
+              </span>
+              <button onClick={() => { setExistingAttachment(null); setNewAttachmentFile(null); }} style={{ background: '#d32f2f', color: '#fff', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <X size={13} />
+              </button>
+            </div>
+          )}
+          <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.9rem 1.4rem', backgroundColor: '#0b69c7', color: '#ffffff', borderRadius: '8px', fontWeight: '800', fontSize: '1rem', cursor: 'pointer' }}>
+            <UploadCloud size={20} />
+            PPTX 파일 선택하기
+            <input type="file" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" onChange={handlePickAttachment} style={{ display: 'none' }} />
+          </label>
+        </div>
+
         <div style={{ marginBottom: '1.5rem' }}>
           <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-            ③ 내용
+            ④ 내용
           </label>
           <textarea
             value={body}

@@ -28,19 +28,19 @@ export const PAGE_HEADER_CONFIG = {
     bgImage: '/subpage-products-bg.jpg'
   },
   promotions: {
-    title: '신상품 & 행사',
+    title: '서진 행사지',
     engTitle: 'NEW & PROMOTIONS',
     category: '프로모션',
     description: '이달의 신상품 추천과 특별 할인 혜택 행사 상품을 만나보세요.',
-    breadcrumb: ['홈', '신상품&행사'],
+    breadcrumb: ['홈', '서진 행사지'],
     bgImage: '/subpage-promotions-bg.jpg'
   },
   recipes: {
-    title: '레시피 & 식단',
+    title: '서진 레시피',
     engTitle: 'RECIPES & MEALS',
     category: '급식 정보',
     description: '영양 균형을 고려한 월간/주간 식단표와 인기 급식 레시피를 제공합니다.',
-    breadcrumb: ['홈', '레시피&식단'],
+    breadcrumb: ['홈', '서진 레시피'],
     bgImage: '/subpage-recipes-bg.jpg'
   },
   hygiene: {

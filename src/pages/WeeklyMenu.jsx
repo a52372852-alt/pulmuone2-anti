@@ -6,7 +6,7 @@ export default function WeeklyMenu() {
   return (
     <BoardPage
       category="recipe"
-      heading="레시피&식단"
+      heading="서진 레시피"
       icon={ChefHat}
       emptyText="아직 등록된 레시피가 없습니다."
     />

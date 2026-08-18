@@ -5,9 +5,60 @@ import { NavigationBar } from '../components/Navbar';
 import ProductCatalog from './ProductCatalog';
 import { supabase } from '../lib/supabaseClient';
 
+function PreviewSection({ title, subtitle, color, badgeBg, items, emptyText, onItemClick, onMoreClick }) {
+  return (
+    <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
+        <span style={{ fontWeight: '800', fontSize: '0.9rem', color }}>{title} <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '400' }}>{subtitle}</span></span>
+        <span onClick={onMoreClick} style={{ fontSize: '0.75rem', color: '#0b69c7', fontWeight: '700', cursor: 'pointer' }}>+ more</span>
+      </div>
+
+      {items.length === 0 ? (
+        <div style={{ padding: '1.5rem 0.5rem', textAlign: 'center', fontSize: '0.78rem', color: '#94a3b8' }}>
+          {emptyText}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', gap: '0.6rem' }}>
+          {items.map((item) => (
+            <div
+              key={item.id}
+              onClick={onItemClick}
+              style={{
+                flex: 1,
+                backgroundColor: '#ffffff',
+                borderRadius: '6px',
+                border: '1px solid #e2e8f0',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              <div style={{ position: 'relative', width: '100%', height: '65px', overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
+                {item.images?.[0] && (
+                  <img src={item.images[0]} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                )}
+                <span style={{ position: 'absolute', top: '3px', left: '3px', backgroundColor: badgeBg, color: '#ffffff', fontSize: '0.62rem', fontWeight: '800', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>
+                  NEW
+                </span>
+              </div>
+              <div style={{ padding: '0.4rem', fontSize: '0.73rem', fontWeight: '800', color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {item.title}
+              </div>
+              <div style={{ padding: '0 0.4rem 0.4rem', fontSize: '0.7rem', color: '#64748b' }}>
+                {item.created_at?.slice(0, 10)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const { setCurrentPage } = useApp();
-  const [activeTab, setActiveTab] = useState('promotions');
   const [recentPosts, setRecentPosts] = useState([]);
   const [recentRecipes, setRecentRecipes] = useState([]);
   const [recentNotices, setRecentNotices] = useState([]);
@@ -37,7 +88,7 @@ export default function Home() {
         .select('*')
         .eq('category', 'notice')
         .order('created_at', { ascending: false })
-        .limit(4);
+        .limit(3);
       setRecentNotices(data || []);
     })();
   }, []);
@@ -136,158 +187,38 @@ export default function Home() {
         {/* Middle 3-Column Content Block */}
         <div className="home-top-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem', marginBottom: '2rem' }}>
 
-          {/* Column 1: 신상품&행사 / 공지사항 Tab */}
-          <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
-            <div style={{ display: 'flex', borderBottom: '2px solid #0b69c7', marginBottom: '0.8rem' }}>
-              <button
-                onClick={() => setActiveTab('promotions')}
-                style={{
-                  padding: '0.4rem 0.8rem',
-                  fontWeight: '800',
-                  fontSize: '0.85rem',
-                  color: activeTab === 'promotions' ? '#0b69c7' : '#64748b',
-                  borderBottom: activeTab === 'promotions' ? '3px solid #0b69c7' : 'none',
-                  marginBottom: '-2px',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                신상품&행사
-              </button>
-              <button
-                onClick={() => setActiveTab('notices')}
-                style={{
-                  padding: '0.4rem 0.8rem',
-                  fontWeight: '800',
-                  fontSize: '0.85rem',
-                  color: activeTab === 'notices' ? '#0b69c7' : '#64748b',
-                  borderBottom: activeTab === 'notices' ? '3px solid #0b69c7' : 'none',
-                  marginBottom: '-2px',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                공지사항
-              </button>
-              <span onClick={() => setCurrentPage('customer')} style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#94a3b8', cursor: 'pointer' }}>+ more</span>
-            </div>
+          <PreviewSection
+            title="서진 행사지"
+            subtitle="New & Event"
+            color="#d32f2f"
+            badgeBg="#d32f2f"
+            items={recentPosts}
+            emptyText="아직 등록된 소식이 없습니다."
+            onItemClick={() => setCurrentPage('promotions')}
+            onMoreClick={() => setCurrentPage('promotions')}
+          />
 
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', margin: 0, padding: 0 }}>
-              {(activeTab === 'promotions' ? recentPosts : recentNotices).length === 0 ? (
-                <li style={{ color: '#94a3b8' }}>아직 등록된 소식이 없습니다.</li>
-              ) : (
-                (activeTab === 'promotions' ? recentPosts : recentNotices).map((post) => (
-                  <li
-                    key={post.id}
-                    onClick={() => setCurrentPage(activeTab === 'promotions' ? 'promotions' : 'customer')}
-                    style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#334155', fontWeight: '600', cursor: 'pointer' }}
-                  >
-                    • {post.title}
-                  </li>
-                ))
-              )}
-            </ul>
-          </div>
+          <PreviewSection
+            title="추천레시피"
+            subtitle="Best Recipe"
+            color="#0b69c7"
+            badgeBg="rgba(3, 105, 161, 0.85)"
+            items={recentRecipes}
+            emptyText="아직 등록된 레시피가 없습니다."
+            onItemClick={() => setCurrentPage('recipes')}
+            onMoreClick={() => setCurrentPage('recipes')}
+          />
 
-          {/* Column 2: 신상품&행사 New & Event Real Product Showcase */}
-          <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
-              <span style={{ fontWeight: '800', fontSize: '0.9rem', color: '#d32f2f' }}>신상품&행사 <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '400' }}>New & Event</span></span>
-              <span onClick={() => setCurrentPage('promotions')} style={{ fontSize: '0.75rem', color: '#0b69c7', fontWeight: '700', cursor: 'pointer' }}>+ more</span>
-            </div>
-
-            {recentPosts.length === 0 ? (
-              <div style={{ padding: '1.5rem 0.5rem', textAlign: 'center', fontSize: '0.78rem', color: '#94a3b8' }}>
-                아직 등록된 소식이 없습니다.
-              </div>
-            ) : (
-              <div style={{ display: 'flex', gap: '0.6rem' }}>
-                {recentPosts.map((post) => (
-                  <div
-                    key={post.id}
-                    onClick={() => setCurrentPage('promotions')}
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#ffffff',
-                      borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                  >
-                    <div style={{ position: 'relative', width: '100%', height: '65px', overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
-                      {post.images?.[0] && (
-                        <img src={post.images[0]} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      )}
-                      <span style={{ position: 'absolute', top: '3px', left: '3px', backgroundColor: '#d32f2f', color: '#ffffff', fontSize: '0.62rem', fontWeight: '800', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>
-                        NEW
-                      </span>
-                    </div>
-                    <div style={{ padding: '0.4rem', fontSize: '0.73rem', fontWeight: '800', color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {post.title}
-                    </div>
-                    <div style={{ padding: '0 0.4rem 0.4rem', fontSize: '0.7rem', color: '#64748b' }}>
-                      {post.created_at?.slice(0, 10)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Column 3: 추천레시피 Best Recipe Real Recipes Showcase */}
-          <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1rem', backgroundColor: '#ffffff' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
-              <span style={{ fontWeight: '800', fontSize: '0.9rem', color: '#0b69c7' }}>추천레시피 <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '400' }}>Best Recipe</span></span>
-              <span onClick={() => setCurrentPage('recipes')} style={{ fontSize: '0.75rem', color: '#0b69c7', fontWeight: '700', cursor: 'pointer' }}>+ more</span>
-            </div>
-
-            {recentRecipes.length === 0 ? (
-              <div style={{ padding: '1.5rem 0.5rem', textAlign: 'center', fontSize: '0.78rem', color: '#94a3b8' }}>
-                아직 등록된 레시피가 없습니다.
-              </div>
-            ) : (
-              <div style={{ display: 'flex', gap: '0.6rem' }}>
-                {recentRecipes.map((rec) => (
-                  <div
-                    key={rec.id}
-                    onClick={() => setCurrentPage('recipes')}
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#ffffff',
-                      borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                  >
-                    <div style={{ position: 'relative', width: '100%', height: '65px', overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
-                      {rec.images?.[0] && (
-                        <img src={rec.images[0]} alt={rec.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      )}
-                      <span style={{ position: 'absolute', top: '3px', left: '3px', backgroundColor: 'rgba(3, 105, 161, 0.85)', color: '#ffffff', fontSize: '0.6rem', fontWeight: '800', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>
-                        NEW
-                      </span>
-                    </div>
-                    <div style={{ padding: '0.4rem', fontSize: '0.73rem', fontWeight: '800', color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {rec.title}
-                    </div>
-                    <div style={{ padding: '0 0.4rem 0.4rem', fontSize: '0.7rem', color: '#64748b' }}>
-                      {rec.created_at?.slice(0, 10)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <PreviewSection
+            title="공지사항"
+            subtitle="Notice"
+            color="#059669"
+            badgeBg="#059669"
+            items={recentNotices}
+            emptyText="아직 등록된 공지사항이 없습니다."
+            onItemClick={() => setCurrentPage('customer')}
+            onMoreClick={() => setCurrentPage('customer')}
+          />
         </div>
 
       </div>

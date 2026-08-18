@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { COMPANY_INFO } from '../data/jwFsData';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { ArrowLeft, Calendar, Download } from 'lucide-react';
 
 export default function BoardPage({ category, heading, icon: Icon, emptyText }) {
   const [posts, setPosts] = useState([]);
@@ -49,6 +49,24 @@ export default function BoardPage({ category, heading, icon: Icon, emptyText }) 
               <span>📅 작성일: {formatDate(selectedPost.created_at)}</span>
             </div>
           </div>
+
+          {selectedPost.attachment_url && (
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+              <a
+                href={selectedPost.attachment_url}
+                download={selectedPost.attachment_name || true}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                  padding: '0.8rem 1.4rem', backgroundColor: '#0b69c7', color: '#ffffff',
+                  borderRadius: '8px', fontWeight: '800', fontSize: '0.95rem', textDecoration: 'none'
+                }}
+              >
+                <Download size={18} /> {selectedPost.attachment_name || '첨부파일'} 다운로드
+              </a>
+            </div>
+          )}
 
           {(selectedPost.images || []).map((url, idx) => (
             <img

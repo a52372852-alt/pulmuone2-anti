@@ -41,7 +41,7 @@ function MainContent() {
       case 'products':
         return <ProductCatalog isPromotionOnly={false} showAllBrandsOption={false} />;
       case 'promotions':
-        return <BoardPage category="promotion" heading="신상품&행사" icon={Sparkles} emptyText="아직 등록된 신상품&행사 소식이 없습니다." />;
+        return <BoardPage category="promotion" heading="서진 행사지" icon={Sparkles} emptyText="아직 등록된 서진 행사지 소식이 없습니다." />;
       case 'recipes':
         return <WeeklyMenu />;
       case 'weekly':

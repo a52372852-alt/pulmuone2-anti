@@ -19,8 +19,8 @@ export function NavigationBar() {
     { id: 'home', label: '홈', icon: <HomeIcon size={16} style={{ marginRight: '4px' }} /> },
     { id: 'company', label: '회사소개' },
     { id: 'products', label: '제품소개' },
-    { id: 'promotions', label: '신상품&행사' },
-    { id: 'recipes', label: '레시피&식단' },
+    { id: 'promotions', label: '서진 행사지' },
+    { id: 'recipes', label: '서진 레시피' },
     { id: 'customer', label: '고객센터' },
     { id: 'admin', label: '관리자', icon: <Lock size={13} style={{ marginRight: '4px' }} /> }
   ];
