@@ -99,7 +99,7 @@ export default function Home() {
       {/* 🌟 1. FRESH REAL-PHOTO HERO BANNER (상단 높이 100px 확대: minHeight 380px) */}
       <section className="hero-section" style={{
         position: 'relative',
-        minHeight: '380px',
+        minHeight: '560px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
@@ -108,7 +108,11 @@ export default function Home() {
       }}>
         <div
           className="hero-bg-kenburns"
-          style={{ backgroundImage: `url("${import.meta.env.BASE_URL}hero-fresh-produce.jpg")` }}
+          style={{
+            backgroundImage: `url("${import.meta.env.BASE_URL}off02.png")`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center'
+          }}
         />
         <div className="container hero-container" style={{ position: 'relative', zIndex: 2, width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
 
@@ -130,7 +134,7 @@ export default function Home() {
             {/* 1. Official Logo Image Centered */}
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', marginBottom: '0.4rem' }}>
               <img
-                src={`${import.meta.env.BASE_URL}seajin-logo-new.png`}
+                src={`${import.meta.env.BASE_URL}ro-01.png`}
                 alt="주식회사 서진 로고"
                 style={{
                   height: '56px',

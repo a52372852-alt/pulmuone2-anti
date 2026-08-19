@@ -135,7 +135,7 @@ export default function AnimatedSeajinLogo({ height = 75, showText = true, isWhi
               textTransform: 'uppercase',
               textShadow: isWhiteText ? '0 1px 4px rgba(0,0,0,0.8)' : 'none'
             }}>
-              SEAJIN
+              SEOJIN
             </span>
             <div style={{ width: '20px', height: '2px', backgroundColor: '#52b32b' }} />
           </div>

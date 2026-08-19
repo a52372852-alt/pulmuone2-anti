@@ -18,7 +18,7 @@ export default function Footer() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.8rem' }}>
-              <img src={`${import.meta.env.BASE_URL}seajin-logo.jpg`} alt="주식회사 서진" style={{ height: '42px', objectFit: 'contain' }} />
+              <img src={`${import.meta.env.BASE_URL}ro-01.png`} alt="주식회사 서진" style={{ height: '42px', objectFit: 'contain' }} />
             </div>
             <p style={{ lineHeight: 1.65, color: 'var(--text-muted)', fontSize: '0.85rem' }}>
               {COMPANY_INFO.slogan}<br />
@@ -49,7 +49,7 @@ export default function Footer() {
         </div>
 
         <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem', textAlign: 'center', color: 'var(--text-light)', fontSize: '0.8rem' }}>
-          <p>© 2026 주식회사 서진 (SEAJIN CO., LTD.). All rights reserved.</p>
+          <p>© 2026 주식회사 서진 (SEOJIN CO., LTD.). All rights reserved.</p>
           <p style={{ marginTop: '0.2rem' }}>신선하고 믿을 수 있는 학교급식 식자재유통 전문기업 주식회사 서진</p>
           <p style={{ marginTop: '0.6rem' }}>
             <button
