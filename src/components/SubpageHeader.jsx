@@ -9,7 +9,7 @@ export const PAGE_HEADER_CONFIG = {
     category: '기업안내',
     description: '주식회사 서진은 최고의 신선도와 엄격한 위생 관리로 학교급식 식자재 유통을 선도합니다.',
     breadcrumb: ['홈', '회사소개'],
-    bgImage: '/subpage-company-bg.jpg'
+    bgImage: '/off03.png'
   },
   business: {
     title: '사업영역',
