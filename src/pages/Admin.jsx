@@ -9,16 +9,39 @@ function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetMsg, setResetMsg] = useState('');
+  const [resetting, setResetting] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setResetMsg('');
     setLoading(true);
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (signInError) {
       setError('이메일 또는 비밀번호가 올바르지 않습니다.');
     }
+  };
+
+  // 비밀번호 재설정 메일 발송 (입력된 이메일 주소로)
+  const handleResetPassword = async () => {
+    setError('');
+    setResetMsg('');
+    if (!email.includes('@')) {
+      setResetMsg('❌ 먼저 위에 이메일 주소를 입력해주세요.');
+      return;
+    }
+    setResetting(true);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    setResetting(false);
+    if (resetError) {
+      setResetMsg('❌ 발송 실패: ' + resetError.message);
+      return;
+    }
+    setResetMsg('✅ "' + email + '"로 비밀번호 재설정 메일을 보냈습니다. 메일함(스팸함도)을 확인해주세요.');
   };
 
   return (
@@ -60,6 +83,28 @@ function LoginForm() {
             {loading ? '로그인 중...' : '로그인'}
           </button>
         </form>
+
+        <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid #e2e8f0' }}>
+          <button
+            type="button"
+            onClick={handleResetPassword}
+            disabled={resetting}
+            style={{
+              background: 'none', border: 'none', color: '#0b69c7', fontSize: '0.88rem',
+              fontWeight: '700', cursor: 'pointer', textDecoration: 'underline', padding: 0
+            }}
+          >
+            {resetting ? '메일 보내는 중...' : '비밀번호를 잊으셨나요?'}
+          </button>
+          <p style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: '#94a3b8', lineHeight: '1.6', textAlign: 'left' }}>
+            위 이메일 칸에 주소를 입력한 뒤 눌러주세요. 해당 메일로 재설정 링크가 발송됩니다.
+          </p>
+          {resetMsg && (
+            <div style={{ marginTop: '0.6rem', fontSize: '0.85rem', fontWeight: '700', lineHeight: '1.6', textAlign: 'left', color: resetMsg.startsWith('✅') ? '#15803d' : '#d32f2f' }}>
+              {resetMsg}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -889,10 +934,6 @@ function StorageUsage() {
   // 도넛 차트 계산
   const R = 70, STROKE = 22, C = 2 * Math.PI * R;
 
-  const fmtSize = (bytes) => bytes >= 1024 * 1024
-    ? (bytes / 1024 / 1024).toFixed(1) + ' MB'
-    : Math.round(bytes / 1024) + ' KB';
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div style={{ border: '2px solid #0b69c7', borderRadius: '10px', padding: '1.5rem', backgroundColor: '#f8fafc' }}>
@@ -940,40 +981,9 @@ function StorageUsage() {
         )}
       </div>
 
-      <div>
-        <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#0f172a', marginBottom: '0.4rem' }}>업로드된 파일 (오래된 순)</h3>
-        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.9rem', lineHeight: '1.6' }}>
-          현재 저장된 파일 목록입니다. 공간이 부족하면 각 게시판(또는 상품 정보 수정)에서 필요 없는 글·상품을 지워주세요.
-        </p>
-
-        {loading ? (
-          <div style={{ color: '#64748b', fontSize: '0.9rem' }}>불러오는 중...</div>
-        ) : files.length === 0 ? (
-          <div style={{ color: '#64748b', fontSize: '0.9rem' }}>업로드된 파일이 없습니다.</div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-            {files.map((file, idx) => (
-              <div key={file.name} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 0.8rem', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: '#ffffff' }}>
-                <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: '700', width: '30px', flexShrink: 0 }}>{idx + 1}</span>
-                <img
-                  src={supabase.storage.from('product-images').getPublicUrl(file.name).data.publicUrl}
-                  alt=""
-                  style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0, backgroundColor: '#f1f5f9' }}
-                  onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {file.name}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                    {fmtSize(file.metadata?.size || 0)} · {(file.created_at || '').slice(0, 10)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: '1.7', margin: 0 }}>
+        현재 저장된 데이터량입니다. 공간이 부족하면 각 게시판(또는 상품 정보 수정)에서 필요 없는 글·상품을 지워주세요.
+      </p>
     </div>
   );
 }
