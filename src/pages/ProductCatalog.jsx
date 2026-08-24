@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BRANDS } from '../data/jwFsOriginalData';
+
 import { useApp } from '../context/AppContext';
 import { Search, Tag, Sparkles, Filter, CheckCircle2, ChevronRight, Home } from 'lucide-react';
 
@@ -18,7 +18,7 @@ const SLOWMADE_SUB_CATEGORIES = [
 ];
 
 export default function ProductCatalog({ isPromotionOnly = false, defaultBrandId = 'pulmuone', showAllBrandsOption = true }) {
-  const { globalSearchTerm, setGlobalSearchTerm, products } = useApp();
+  const { globalSearchTerm, setGlobalSearchTerm, products, brands } = useApp();
   const [selectedBrandId, setSelectedBrandId] = useState(defaultBrandId);
   const [selectedSubCategory, setSelectedSubCategory] = useState('전체보기');
   const [searchTerm, setSearchTerm] = useState(globalSearchTerm || '');
@@ -79,7 +79,7 @@ export default function ProductCatalog({ isPromotionOnly = false, defaultBrandId
     return bt - at;
   });
 
-  const selectedBrandObj = BRANDS.find(b => b.id === selectedBrandId) || { name: '전체 브랜드' };
+  const selectedBrandObj = brands.find(b => b.id === selectedBrandId) || { name: '전체 브랜드' };
 
   return (
     <div className="container animate-fade-in" style={{ padding: '2rem 1rem 3.5rem' }}>
@@ -135,7 +135,7 @@ export default function ProductCatalog({ isPromotionOnly = false, defaultBrandId
                 <span style={{ fontSize: '0.75rem', color: '#0b69c7' }}>›</span>
               </li>
             )}
-            {BRANDS.map(brand => {
+            {brands.map(brand => {
               const isSelected = selectedBrandId === brand.id;
               return (
                 <li

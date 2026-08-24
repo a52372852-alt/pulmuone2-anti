@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useApp } from '../context/AppContext';
-import { BRANDS } from '../data/jwFsOriginalData';
+
 import { LogIn, LogOut, UploadCloud, CheckCircle2, X, Pencil, Trash2 } from 'lucide-react';
 
 function LoginForm() {
@@ -68,8 +68,12 @@ function LoginForm() {
 const emptyForm = { name: '', salePrice: '', originalPrice: '', spec: '', mainIngredient: '', storage: '', shelfLife: '', term: '', isEvent: false, noticeMemo: '' };
 
 function ProductEditor() {
-  const { products, refreshProducts } = useApp();
-  const [selectedBrandId, setSelectedBrandId] = useState(BRANDS[0].id);
+  const { products, refreshProducts, brands } = useApp();
+  const [selectedBrandId, setSelectedBrandId] = useState('');
+
+  useEffect(() => {
+    if (!selectedBrandId && brands.length > 0) setSelectedBrandId(brands[0].id);
+  }, [brands]); // eslint-disable-line react-hooks/exhaustive-deps
   const [selectedProductId, setSelectedProductId] = useState(''); // '' | 'new' | id
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -137,7 +141,7 @@ function ProductEditor() {
       imageUrl = supabase.storage.from('product-images').getPublicUrl(path).data.publicUrl;
     }
 
-    const brandName = BRANDS.find(b => b.id === selectedBrandId)?.name || selectedBrandId;
+    const brandName = brands.find(b => b.id === selectedBrandId)?.name || selectedBrandId;
     const payload = {
       brand_id: selectedBrandId,
       category: selectedProduct?.category || `${brandName} - ${brandName}`,
@@ -197,7 +201,7 @@ function ProductEditor() {
           ① 브랜드를 선택하세요
         </label>
         <select value={selectedBrandId} onChange={(e) => setSelectedBrandId(e.target.value)} style={{ width: '100%', padding: '0.75rem', fontSize: '1rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-          {BRANDS.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+          {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
         </select>
       </div>
 
@@ -586,6 +590,183 @@ function PostEditor() {
   );
 }
 
+function BrandEditor() {
+  const { brands, refreshBrands } = useApp();
+  const [newName, setNewName] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editingName, setEditingName] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [dragIdx, setDragIdx] = useState(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
+
+  const handleAdd = async () => {
+    const name = newName.trim();
+    if (!name) { setMsg('❌ 브랜드 이름을 입력해주세요.'); return; }
+    setBusy(true);
+    setMsg('');
+    const id = 'brand-' + Date.now();
+    const maxOrder = brands.reduce((m, b) => Math.max(m, b.sort_order || 0), 0);
+    const { error } = await supabase.from('brands').insert({ id, name, sort_order: maxOrder + 1 });
+    setBusy(false);
+    if (error) { setMsg('❌ 추가 실패: ' + error.message); return; }
+    setNewName('');
+    await refreshBrands();
+    setMsg('✅ "' + name + '" 브랜드가 추가되었습니다.');
+  };
+
+  const handleSaveEdit = async (brand) => {
+    const name = editingName.trim();
+    if (!name) { setMsg('❌ 브랜드 이름을 입력해주세요.'); return; }
+    setBusy(true);
+    setMsg('');
+    const { error } = await supabase.from('brands').update({ name }).eq('id', brand.id);
+    setBusy(false);
+    if (error) { setMsg('❌ 수정 실패: ' + error.message); return; }
+    setEditingId(null);
+    await refreshBrands();
+    setMsg('✅ 수정되었습니다.');
+  };
+
+  const handleDelete = async (brand) => {
+    if (!window.confirm(`"${brand.name}" 브랜드를 삭제할까요?\n(이 브랜드로 등록된 상품은 목록에서 보이지 않게 됩니다)`)) return;
+    setBusy(true);
+    setMsg('');
+    const { error } = await supabase.from('brands').delete().eq('id', brand.id);
+    setBusy(false);
+    if (error) { setMsg('❌ 삭제 실패: ' + error.message); return; }
+    await refreshBrands();
+    setMsg('✅ 삭제되었습니다.');
+  };
+
+  // 위/아래 화살표로 순서 변경 (두 항목의 sort_order를 서로 맞바꿈)
+  const handleMove = async (index, direction) => {
+    const target = brands[index + direction];
+    const current = brands[index];
+    if (!target || !current) return;
+    setBusy(true);
+    setMsg('');
+    await supabase.from('brands').update({ sort_order: target.sort_order }).eq('id', current.id);
+    await supabase.from('brands').update({ sort_order: current.sort_order }).eq('id', target.id);
+    setBusy(false);
+    await refreshBrands();
+  };
+
+  // 드래그로 순서 변경: 놓은 위치 기준으로 전체 순번을 다시 매김
+  const handleDropReorder = async (fromIdx, toIdx) => {
+    if (fromIdx === toIdx || fromIdx == null || toIdx == null) return;
+    const reordered = [...brands];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+
+    setBusy(true);
+    setMsg('');
+    for (let i = 0; i < reordered.length; i++) {
+      if (reordered[i].sort_order !== i + 1) {
+        await supabase.from('brands').update({ sort_order: i + 1 }).eq('id', reordered[i].id);
+      }
+    }
+    setBusy(false);
+    await refreshBrands();
+    setMsg('✅ 순서가 변경되었습니다.');
+  };
+
+  const btnStyle = (color, bg, border) => ({
+    padding: '0.4rem 0.6rem', fontSize: '0.8rem', fontWeight: '700', color,
+    border: `1px solid ${border}`, borderRadius: '6px', backgroundColor: bg,
+    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0
+  });
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ border: '2px solid #0b69c7', borderRadius: '10px', padding: '1.5rem', backgroundColor: '#f8fafc' }}>
+        <h3 style={{ fontSize: '1.05rem', fontWeight: '900', color: '#0b69c7', marginBottom: '1rem' }}>새 브랜드 추가</h3>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+          <input
+            type="text"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
+            placeholder="예: 서진식품"
+            style={{ flex: 1, minWidth: '200px', padding: '0.8rem', fontSize: '1rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+          />
+          <button onClick={handleAdd} disabled={busy} className="btn btn-primary" style={{ padding: '0.8rem 1.5rem', fontSize: '1rem', fontWeight: '900' }}>
+            추가하기
+          </button>
+        </div>
+        {msg && (
+          <div style={{ marginTop: '0.9rem', fontSize: '0.92rem', fontWeight: '800', color: msg.startsWith('✅') ? '#15803d' : '#d32f2f' }}>
+            {msg}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#0f172a', marginBottom: '0.4rem' }}>브랜드 목록 (총 {brands.length}개)</h3>
+        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.9rem' }}>
+          ▲▼ 버튼을 누르거나, 왼쪽 <strong>⠿</strong> 손잡이를 잡고 끌어서(드래그) 순서를 바꿀 수 있습니다. 바꾼 순서는 사이트 메뉴에 그대로 반영됩니다.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {brands.map((brand, idx) => (
+            <div
+              key={brand.id}
+              onDragOver={(e) => { e.preventDefault(); if (dragOverIdx !== idx) setDragOverIdx(idx); }}
+              onDrop={(e) => { e.preventDefault(); handleDropReorder(dragIdx, idx); setDragIdx(null); setDragOverIdx(null); }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.7rem 0.9rem',
+                border: dragOverIdx === idx && dragIdx !== null && dragIdx !== idx ? '2px dashed #0b69c7' : '1px solid #e2e8f0',
+                borderRadius: '8px',
+                backgroundColor: dragIdx === idx ? '#e0f2fe' : '#ffffff',
+                opacity: dragIdx === idx ? 0.6 : 1,
+                transition: 'background 0.12s ease, border-color 0.12s ease'
+              }}
+            >
+              <span
+                draggable
+                onDragStart={() => { setDragIdx(idx); setMsg(''); }}
+                onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+                title="끌어서 순서 변경"
+                style={{ cursor: 'grab', color: '#94a3b8', fontSize: '1.05rem', padding: '0 0.15rem', flexShrink: 0, userSelect: 'none' }}
+              >
+                ⠿
+              </span>
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '700', width: '26px', flexShrink: 0 }}>{idx + 1}</span>
+
+              {editingId === brand.id ? (
+                <>
+                  <input
+                    type="text"
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEdit(brand); }}
+                    autoFocus
+                    style={{ flex: 1, padding: '0.5rem', fontSize: '0.95rem', borderRadius: '6px', border: '2px solid #0b69c7' }}
+                  />
+                  <button onClick={() => handleSaveEdit(brand)} disabled={busy} style={btnStyle('#15803d', '#f0fdf4', '#86efac')}>저장</button>
+                  <button onClick={() => setEditingId(null)} style={btnStyle('#64748b', '#ffffff', '#cbd5e1')}>취소</button>
+                </>
+              ) : (
+                <>
+                  <span style={{ flex: 1, fontSize: '0.95rem', fontWeight: '700', color: '#1e293b' }}>{brand.name}</span>
+                  <button onClick={() => handleMove(idx, -1)} disabled={busy || idx === 0} style={{ ...btnStyle('#0b69c7', '#f0f9ff', '#bae6fd'), opacity: idx === 0 ? 0.35 : 1 }} title="위로">▲</button>
+                  <button onClick={() => handleMove(idx, 1)} disabled={busy || idx === brands.length - 1} style={{ ...btnStyle('#0b69c7', '#f0f9ff', '#bae6fd'), opacity: idx === brands.length - 1 ? 0.35 : 1 }} title="아래로">▼</button>
+                  <button onClick={() => { setEditingId(brand.id); setEditingName(brand.name); setMsg(''); }} style={btnStyle('#0b69c7', '#f0f9ff', '#bae6fd')}>
+                    <Pencil size={13} /> 수정
+                  </button>
+                  <button onClick={() => handleDelete(brand)} disabled={busy} style={btnStyle('#d32f2f', '#fef2f2', '#fca5a5')}>
+                    <Trash2 size={13} /> 삭제
+                  </button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PasswordSettings() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -689,6 +870,17 @@ export default function Admin() {
           게시판 글 관리
         </button>
         <button
+          onClick={() => setActiveTab('brand')}
+          style={{
+            padding: '0.7rem 1.2rem', fontSize: '0.95rem', fontWeight: '800', border: 'none', background: 'none', cursor: 'pointer',
+            color: activeTab === 'brand' ? '#0b69c7' : '#94a3b8',
+            borderBottom: activeTab === 'brand' ? '3px solid #0b69c7' : '3px solid transparent',
+            marginBottom: '-2px'
+          }}
+        >
+          브랜드 메뉴 관리
+        </button>
+        <button
           onClick={() => setActiveTab('account')}
           style={{
             padding: '0.7rem 1.2rem', fontSize: '0.95rem', fontWeight: '800', border: 'none', background: 'none', cursor: 'pointer',
@@ -701,7 +893,10 @@ export default function Admin() {
         </button>
       </div>
 
-      {activeTab === 'product' ? <ProductEditor /> : activeTab === 'post' ? <PostEditor /> : <PasswordSettings />}
+      {activeTab === 'product' ? <ProductEditor />
+        : activeTab === 'post' ? <PostEditor />
+        : activeTab === 'brand' ? <BrandEditor />
+        : <PasswordSettings />}
     </div>
   );
 }

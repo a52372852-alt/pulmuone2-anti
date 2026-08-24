@@ -58,6 +58,22 @@ export const AppProvider = ({ children }) => {
     refreshProducts();
   }, [refreshProducts]);
 
+  // 제품소개 브랜드 목록 (관리자가 추가/수정/삭제/순서변경 가능)
+  const [brands, setBrands] = useState([]);
+
+  const refreshBrands = useCallback(async () => {
+    const { data, error } = await supabase.from('brands').select('*').order('sort_order');
+    if (error) {
+      console.error('브랜드 목록 조회 실패:', error.message);
+      return;
+    }
+    setBrands(data || []);
+  }, []);
+
+  useEffect(() => {
+    refreshBrands();
+  }, [refreshBrands]);
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('geupsik_theme', theme);
@@ -98,7 +114,9 @@ export const AppProvider = ({ children }) => {
         globalSearchTerm,
         setGlobalSearchTerm,
         products,
-        refreshProducts
+        refreshProducts,
+        brands,
+        refreshBrands
       }}
     >
       {children}
