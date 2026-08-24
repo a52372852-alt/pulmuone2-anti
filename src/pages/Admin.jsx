@@ -767,6 +767,66 @@ function BrandEditor() {
   );
 }
 
+function EmailSettings() {
+  const [currentEmail, setCurrentEmail] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setCurrentEmail(data?.user?.email || ''));
+  }, []);
+
+  const handleChangeEmail = async () => {
+    setMsg('');
+    const email = newEmail.trim();
+    if (!email.includes('@')) { setMsg('❌ 올바른 이메일 주소를 입력해주세요.'); return; }
+    if (email === currentEmail) { setMsg('❌ 현재 사용 중인 이메일과 동일합니다.'); return; }
+    setSaving(true);
+    const { error } = await supabase.auth.updateUser({ email });
+    setSaving(false);
+    if (error) { setMsg('❌ 변경 실패: ' + error.message); return; }
+    setNewEmail('');
+    setMsg('✅ 변경 요청이 접수되었습니다. "' + email + '" 메일함에서 확인 메일의 링크를 눌러야 최종 적용됩니다.');
+  };
+
+  return (
+    <div style={{ border: '2px solid #0b69c7', borderRadius: '10px', padding: '1.5rem', backgroundColor: '#f8fafc', maxWidth: '420px' }}>
+      <h3 style={{ fontSize: '1.05rem', fontWeight: '900', color: '#0b69c7', marginBottom: '1rem' }}>로그인 이메일 변경</h3>
+
+      <div style={{ marginBottom: '1.1rem', padding: '0.7rem 0.9rem', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
+        <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '700', marginBottom: '0.2rem' }}>현재 로그인 이메일</div>
+        <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a' }}>{currentEmail || '확인 중...'}</div>
+      </div>
+
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>새 이메일</label>
+        <input
+          type="email"
+          value={newEmail}
+          onChange={(e) => setNewEmail(e.target.value)}
+          placeholder="예: hb4115@hanmail.net"
+          style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+        />
+      </div>
+
+      <button onClick={handleChangeEmail} disabled={saving} className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.05rem', fontWeight: '900', justifyContent: 'center' }}>
+        {saving ? '변경 중...' : '이메일 변경하기'}
+      </button>
+
+      <p style={{ marginTop: '0.9rem', fontSize: '0.82rem', color: '#64748b', lineHeight: '1.6' }}>
+        ※ 변경 버튼을 누르면 새 이메일 주소로 확인 메일이 갑니다. 그 메일의 링크를 눌러야 변경이 완료되며, 그 전까지는 기존 이메일로 로그인하시면 됩니다.
+      </p>
+
+      {msg && (
+        <div style={{ marginTop: '1rem', fontSize: '0.92rem', fontWeight: '800', lineHeight: '1.6', color: msg.startsWith('✅') ? '#15803d' : '#d32f2f' }}>
+          {msg}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PasswordSettings() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -896,7 +956,12 @@ export default function Admin() {
       {activeTab === 'product' ? <ProductEditor />
         : activeTab === 'post' ? <PostEditor />
         : activeTab === 'brand' ? <BrandEditor />
-        : <PasswordSettings />}
+        : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <EmailSettings />
+            <PasswordSettings />
+          </div>
+        )}
     </div>
   );
 }
