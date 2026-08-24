@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { COMPANY_INFO } from '../data/jwFsData';
-import { ArrowLeft, Calendar, Download } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, ExternalLink } from 'lucide-react';
 
 export default function BoardPage({ category, heading, icon: Icon, emptyText }) {
   const [posts, setPosts] = useState([]);
@@ -49,6 +49,23 @@ export default function BoardPage({ category, heading, icon: Icon, emptyText }) 
               <span>📅 작성일: {formatDate(selectedPost.created_at)}</span>
             </div>
           </div>
+
+          {selectedPost.drive_url && (
+            <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+              <a
+                href={selectedPost.drive_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                  padding: '0.8rem 1.4rem', backgroundColor: '#0f9d58', color: '#ffffff',
+                  borderRadius: '8px', fontWeight: '800', fontSize: '0.95rem', textDecoration: 'none'
+                }}
+              >
+                <ExternalLink size={18} /> 구글 드라이브에서 보기
+              </a>
+            </div>
+          )}
 
           {selectedPost.attachment_url && (
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>

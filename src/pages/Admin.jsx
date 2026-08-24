@@ -297,6 +297,7 @@ function PostEditor() {
   const [existingAttachment, setExistingAttachment] = useState(null); // { url, name }
   const [newAttachmentFile, setNewAttachmentFile] = useState(null);
   const [body, setBody] = useState('');
+  const [driveUrl, setDriveUrl] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
 
@@ -320,6 +321,7 @@ function PostEditor() {
     setExistingAttachment(null);
     setNewAttachmentFile(null);
     setBody('');
+    setDriveUrl('');
     setSavedMsg('');
   };
 
@@ -331,6 +333,7 @@ function PostEditor() {
     setExistingAttachment(post.attachment_url ? { url: post.attachment_url, name: post.attachment_name } : null);
     setNewAttachmentFile(null);
     setBody(post.body || '');
+    setDriveUrl(post.drive_url || '');
     setSavedMsg('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -396,11 +399,11 @@ function PostEditor() {
     let saveError;
     if (editingId) {
       ({ error: saveError } = await supabase.from('board_posts').update({
-        title, images: finalImages, body, attachment_url: attachmentUrl, attachment_name: attachmentName,
+        title, images: finalImages, body, attachment_url: attachmentUrl, attachment_name: attachmentName, drive_url: driveUrl.trim() || null,
       }).eq('id', editingId));
     } else {
       ({ error: saveError } = await supabase.from('board_posts').insert({
-        title, images: finalImages, body, category, attachment_url: attachmentUrl, attachment_name: attachmentName,
+        title, images: finalImages, body, category, attachment_url: attachmentUrl, attachment_name: attachmentName, drive_url: driveUrl.trim() || null,
       }));
     }
 
@@ -521,9 +524,26 @@ function PostEditor() {
           </label>
         </div>
 
+        <div style={{ marginBottom: '1.1rem' }}>
+          <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
+            ④ 구글 드라이브 링크 (선택)
+          </label>
+          <input
+            type="url"
+            value={driveUrl}
+            onChange={(e) => setDriveUrl(e.target.value)}
+            placeholder="https://drive.google.com/... 주소를 붙여넣으세요"
+            style={{ width: '100%', padding: '0.7rem', fontSize: '0.95rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+          />
+          <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#64748b', lineHeight: '1.6' }}>
+            ※ 용량이 큰 파일은 구글 드라이브에 올린 뒤 링크를 붙여넣으세요. 게시글에 <strong>"구글 드라이브에서 보기"</strong> 버튼이 생깁니다.<br />
+            드라이브에서 파일 우클릭 → 공유 → <strong>"링크가 있는 모든 사용자"</strong>로 설정해야 다른 사람이 열 수 있습니다.
+          </p>
+        </div>
+
         <div style={{ marginBottom: '1.5rem' }}>
           <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-            ④ 내용
+            ⑤ 내용
           </label>
           <textarea
             value={body}
@@ -827,6 +847,152 @@ function EmailSettings() {
   );
 }
 
+const FREE_LIMIT_BYTES = 1024 * 1024 * 1024; // Supabase 무료 플랜 저장공간 1GB
+
+function StorageUsage() {
+  const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  const loadFiles = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.storage.from('product-images').list('', {
+      limit: 1000,
+      sortBy: { column: 'created_at', order: 'asc' }, // 오래된 파일이 위로
+    });
+    if (error) {
+      setMsg('❌ 파일 목록 조회 실패: ' + error.message);
+      setLoading(false);
+      return;
+    }
+    setFiles((data || []).filter(f => f.metadata));
+    setLoading(false);
+  };
+
+  useEffect(() => { loadFiles(); }, []);
+
+  const usedBytes = files.reduce((sum, f) => sum + (f.metadata?.size || 0), 0);
+  const usedMB = usedBytes / 1024 / 1024;
+  const percent = Math.min(100, (usedBytes / FREE_LIMIT_BYTES) * 100);
+
+  // 사용량에 따른 색상 (여유=초록, 주의=주황, 위험=빨강)
+  const color = percent >= 85 ? '#d32f2f' : percent >= 60 ? '#f59e0b' : '#10b981';
+  const statusText = percent >= 85 ? '공간이 거의 찼습니다. 오래된 파일을 지워주세요.'
+    : percent >= 60 ? '절반 이상 사용했습니다. 관리가 필요합니다.'
+    : '여유가 충분합니다.';
+
+  // 도넛 차트 계산
+  const R = 70, STROKE = 22, C = 2 * Math.PI * R;
+
+  const handleDeleteFile = async (file) => {
+    if (!window.confirm(`"${file.name}" 파일을 삭제할까요?\n\n⚠️ 이 파일을 사용 중인 상품이나 게시글이 있으면 사진이 안 보이게 됩니다.`)) return;
+    setBusy(true);
+    setMsg('');
+    const { error } = await supabase.storage.from('product-images').remove([file.name]);
+    setBusy(false);
+    if (error) { setMsg('❌ 삭제 실패: ' + error.message); return; }
+    await loadFiles();
+    setMsg('✅ 삭제되었습니다.');
+  };
+
+  const fmtSize = (bytes) => bytes >= 1024 * 1024
+    ? (bytes / 1024 / 1024).toFixed(1) + ' MB'
+    : Math.round(bytes / 1024) + ' KB';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ border: '2px solid #0b69c7', borderRadius: '10px', padding: '1.5rem', backgroundColor: '#f8fafc' }}>
+        <h3 style={{ fontSize: '1.05rem', fontWeight: '900', color: '#0b69c7', marginBottom: '1.25rem' }}>저장공간 사용량</h3>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.75rem', flexWrap: 'wrap' }}>
+          <svg width="180" height="180" viewBox="0 0 180 180" style={{ flexShrink: 0 }}>
+            <circle cx="90" cy="90" r={R} fill="none" stroke="#e2e8f0" strokeWidth={STROKE} />
+            <circle
+              cx="90" cy="90" r={R} fill="none" stroke={color} strokeWidth={STROKE}
+              strokeDasharray={`${(percent / 100) * C} ${C}`}
+              strokeLinecap="round"
+              transform="rotate(-90 90 90)"
+              style={{ transition: 'stroke-dasharray 0.6s ease' }}
+            />
+            <text x="90" y="84" textAnchor="middle" fontSize="30" fontWeight="900" fill={color}>
+              {percent.toFixed(1)}%
+            </text>
+            <text x="90" y="107" textAnchor="middle" fontSize="13" fontWeight="700" fill="#64748b">
+              사용 중
+            </text>
+          </svg>
+
+          <div style={{ flex: 1, minWidth: '200px' }}>
+            <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#0f172a' }}>
+              {usedMB.toFixed(1)} <span style={{ fontSize: '1rem', color: '#64748b' }}>MB / 1,024 MB</span>
+            </div>
+            <div style={{ marginTop: '0.4rem', fontSize: '0.9rem', fontWeight: '700', color }}>
+              {statusText}
+            </div>
+            <div style={{ marginTop: '0.9rem', fontSize: '0.88rem', color: '#334155', lineHeight: '1.7' }}>
+              파일 개수: <strong>{files.length}개</strong><br />
+              남은 공간: <strong>{((FREE_LIMIT_BYTES - usedBytes) / 1024 / 1024).toFixed(1)} MB</strong>
+            </div>
+            <button onClick={loadFiles} disabled={loading} style={{ marginTop: '1rem', padding: '0.5rem 1rem', fontSize: '0.85rem', fontWeight: '700', color: '#0b69c7', border: '1px solid #bae6fd', borderRadius: '6px', backgroundColor: '#f0f9ff', cursor: 'pointer' }}>
+              새로고침
+            </button>
+          </div>
+        </div>
+
+        {msg && (
+          <div style={{ marginTop: '1rem', fontSize: '0.92rem', fontWeight: '800', color: msg.startsWith('✅') ? '#15803d' : '#d32f2f' }}>
+            {msg}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#0f172a', marginBottom: '0.4rem' }}>업로드된 파일 (오래된 순)</h3>
+        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.9rem', lineHeight: '1.6' }}>
+          공간이 부족하면 위(오래된 파일)부터 지우세요.<br />
+          ⚠️ 지금 사이트에서 쓰고 있는 사진을 지우면 해당 사진이 안 보이게 되니 주의하세요.
+        </p>
+
+        {loading ? (
+          <div style={{ color: '#64748b', fontSize: '0.9rem' }}>불러오는 중...</div>
+        ) : files.length === 0 ? (
+          <div style={{ color: '#64748b', fontSize: '0.9rem' }}>업로드된 파일이 없습니다.</div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+            {files.map((file, idx) => (
+              <div key={file.name} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 0.8rem', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: '#ffffff' }}>
+                <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: '700', width: '30px', flexShrink: 0 }}>{idx + 1}</span>
+                <img
+                  src={supabase.storage.from('product-images').getPublicUrl(file.name).data.publicUrl}
+                  alt=""
+                  style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0, backgroundColor: '#f1f5f9' }}
+                  onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {file.name}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                    {fmtSize(file.metadata?.size || 0)} · {(file.created_at || '').slice(0, 10)}
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleDeleteFile(file)}
+                  disabled={busy}
+                  style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', fontWeight: '700', color: '#d32f2f', border: '1px solid #fca5a5', borderRadius: '6px', backgroundColor: '#fef2f2', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}
+                >
+                  <Trash2 size={13} /> 삭제
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PasswordSettings() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -941,6 +1107,17 @@ export default function Admin() {
           브랜드 메뉴 관리
         </button>
         <button
+          onClick={() => setActiveTab('storage')}
+          style={{
+            padding: '0.7rem 1.2rem', fontSize: '0.95rem', fontWeight: '800', border: 'none', background: 'none', cursor: 'pointer',
+            color: activeTab === 'storage' ? '#0b69c7' : '#94a3b8',
+            borderBottom: activeTab === 'storage' ? '3px solid #0b69c7' : '3px solid transparent',
+            marginBottom: '-2px'
+          }}
+        >
+          저장공간
+        </button>
+        <button
           onClick={() => setActiveTab('account')}
           style={{
             padding: '0.7rem 1.2rem', fontSize: '0.95rem', fontWeight: '800', border: 'none', background: 'none', cursor: 'pointer',
@@ -956,6 +1133,7 @@ export default function Admin() {
       {activeTab === 'product' ? <ProductEditor />
         : activeTab === 'post' ? <PostEditor />
         : activeTab === 'brand' ? <BrandEditor />
+        : activeTab === 'storage' ? <StorageUsage />
         : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <EmailSettings />
