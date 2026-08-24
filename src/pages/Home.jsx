@@ -99,7 +99,7 @@ export default function Home() {
       {/* 🌟 1. FRESH REAL-PHOTO HERO BANNER (상단 높이 100px 확대: minHeight 380px) */}
       <section className="hero-section" style={{
         position: 'relative',
-        minHeight: '560px',
+        minHeight: '360px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
@@ -109,7 +109,7 @@ export default function Home() {
         <div
           className="hero-bg-kenburns"
           style={{
-            backgroundImage: `url("${import.meta.env.BASE_URL}off02.png")`,
+            backgroundImage: `url("${import.meta.env.BASE_URL}off04.png")`,
             backgroundSize: 'cover',
             backgroundPosition: 'center center'
           }}
