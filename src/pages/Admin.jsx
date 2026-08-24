@@ -594,7 +594,12 @@ function PostEditor() {
                 {post.images?.[0] && (
                   <img src={post.images[0]} alt="" style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px' }} />
                 )}
-                <div style={{ flex: 1, fontSize: '0.9rem', fontWeight: '700', color: '#1e293b' }}>{post.title}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.title}</div>
+                  <div style={{ fontSize: '0.76rem', color: '#94a3b8', marginTop: '0.15rem' }}>
+                    등록일: {(post.created_at || '').slice(0, 10)}
+                  </div>
+                </div>
                 <button onClick={() => startEdit(post)} style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', fontWeight: '700', color: '#0b69c7', border: '1px solid #bae6fd', borderRadius: '6px', backgroundColor: '#f0f9ff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                   <Pencil size={13} /> 수정
                 </button>
@@ -852,7 +857,6 @@ const FREE_LIMIT_BYTES = 1024 * 1024 * 1024; // Supabase 무료 플랜 저장공
 function StorageUsage() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
 
   const loadFiles = async () => {
@@ -884,17 +888,6 @@ function StorageUsage() {
 
   // 도넛 차트 계산
   const R = 70, STROKE = 22, C = 2 * Math.PI * R;
-
-  const handleDeleteFile = async (file) => {
-    if (!window.confirm(`"${file.name}" 파일을 삭제할까요?\n\n⚠️ 이 파일을 사용 중인 상품이나 게시글이 있으면 사진이 안 보이게 됩니다.`)) return;
-    setBusy(true);
-    setMsg('');
-    const { error } = await supabase.storage.from('product-images').remove([file.name]);
-    setBusy(false);
-    if (error) { setMsg('❌ 삭제 실패: ' + error.message); return; }
-    await loadFiles();
-    setMsg('✅ 삭제되었습니다.');
-  };
 
   const fmtSize = (bytes) => bytes >= 1024 * 1024
     ? (bytes / 1024 / 1024).toFixed(1) + ' MB'
@@ -950,8 +943,7 @@ function StorageUsage() {
       <div>
         <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#0f172a', marginBottom: '0.4rem' }}>업로드된 파일 (오래된 순)</h3>
         <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.9rem', lineHeight: '1.6' }}>
-          공간이 부족하면 위(오래된 파일)부터 지우세요.<br />
-          ⚠️ 지금 사이트에서 쓰고 있는 사진을 지우면 해당 사진이 안 보이게 되니 주의하세요.
+          현재 저장된 파일 목록입니다. 공간이 부족하면 각 게시판(또는 상품 정보 수정)에서 필요 없는 글·상품을 지워주세요.
         </p>
 
         {loading ? (
@@ -977,13 +969,6 @@ function StorageUsage() {
                     {fmtSize(file.metadata?.size || 0)} · {(file.created_at || '').slice(0, 10)}
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDeleteFile(file)}
-                  disabled={busy}
-                  style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', fontWeight: '700', color: '#d32f2f', border: '1px solid #fca5a5', borderRadius: '6px', backgroundColor: '#fef2f2', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}
-                >
-                  <Trash2 size={13} /> 삭제
-                </button>
               </div>
             ))}
           </div>
