@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Leaf } from 'lucide-react';
 import { NavigationBar } from '../components/Navbar';
 import ProductCatalog from './ProductCatalog';
 import { supabase } from '../lib/supabaseClient';
@@ -114,7 +113,7 @@ export default function Home() {
             backgroundPosition: 'center center'
           }}
         />
-        <div className="container hero-container" style={{ position: 'relative', zIndex: 2, width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="hero-container" style={{ position: 'relative', zIndex: 2, width: '100%', display: 'flex', justifyContent: 'flex-end', paddingRight: '1.25rem' }}>
 
           {/* 🌟 Bottom Right Basket Area Box: Centered Logo + Centered Text Below */}
           <div className="hero-logo-box hero-card-fade-in" style={{
@@ -123,12 +122,12 @@ export default function Home() {
             alignItems: 'center',
             textAlign: 'center',
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            padding: '0.85rem 1.25rem',
+            padding: '0.5rem 0.7rem',
             borderRadius: '12px',
             borderLeft: '4px solid #10b981',
             boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16)',
             backdropFilter: 'blur(8px)',
-            maxWidth: '330px',
+            maxWidth: '165px',
             margin: 0
           }}>
             {/* 1. Official Logo Image Centered */}
@@ -137,8 +136,8 @@ export default function Home() {
                 src={`${import.meta.env.BASE_URL}ro-01.png`}
                 alt="주식회사 서진 로고"
                 style={{
-                  height: '56px',
-                  width: 'auto',
+                  width: '100%',
+                  height: 'auto',
                   objectFit: 'contain',
                   display: 'block',
                   margin: '0 auto'
@@ -149,10 +148,11 @@ export default function Home() {
             {/* 2. Text Placed Below Logo Centered */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem', width: '100%' }}>
               <h1 style={{
-                fontSize: '1.05rem',
+                fontSize: '0.62rem',
                 fontWeight: '900',
                 lineHeight: '1.4',
-                letterSpacing: '-0.02em',
+                letterSpacing: '-0.03em',
+                whiteSpace: 'nowrap',
                 color: '#0f172a',
                 margin: 0,
                 textAlign: 'center'
@@ -162,19 +162,6 @@ export default function Home() {
                   학교급식 식자재유통 전문기업
                 </span>
               </h1>
-              <div style={{
-                fontSize: '0.78rem',
-                fontWeight: '700',
-                color: '#64748b',
-                marginTop: '0.2rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.3rem'
-              }}>
-                <Leaf size={13} color="#10b981" />
-                <span>주식회사 서진 · 충남 홍성 내포물류센터</span>
-              </div>
             </div>
 
           </div>
