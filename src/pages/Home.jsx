@@ -108,7 +108,7 @@ export default function Home() {
         <div
           className="hero-bg-kenburns"
           style={{
-            backgroundImage: `url("${import.meta.env.BASE_URL}off04.png")`,
+            backgroundImage: `url("${import.meta.env.BASE_URL}home-building-front.png")`,
             backgroundSize: 'cover',
             backgroundPosition: 'center center'
           }}

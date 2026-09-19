@@ -175,7 +175,7 @@ www / non-www 둘 다 연결, HTTPS 강제(Let's Encrypt) 적용됨.
 
 ### 랜딩페이지(`Home.jsx`) 구성 순서 — 변경 금지
 
-1. 히어로 (`public/off04.png`, 우측 하단에 로고 박스, 네비바에 붙어있음)
+1. 히어로 (`public/home-building-front.png`, 우측 하단에 로고 박스, 네비바에 붙어있음)
 2. 네비게이션 바
 3. 3단 미리보기: **서진 행사지 → 추천레시피 → 공지사항** (이 순서가 클라이언트 지정 사항)
 4. 제품소개 게시판 (`<ProductCatalog defaultBrandId="all" />`, 최신 등록순)
